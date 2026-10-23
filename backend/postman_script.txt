@@ -1,0 +1,27 @@
+Pre req:
+const token = pm.environment.get("accessToken");
+if (token) {
+    pm.request.headers.upsert({
+        key: "Authorization",
+        value: `Bearer ${token}`
+    });
+}
+
+Post req:
+if (pm.response.code === 401 &&
+    pm.response.headers.get("x-token-expired") === "true") {
+    pm.sendRequest({
+        url: pm.environment.get("base") + "/api/auth/refresh",
+        method: "POST"
+    }, function (err, res) {
+        if (!err && res.code === 200) {
+            const data = res.json();
+            const newToken = data.accessToken;
+            pm.environment.set("accessToken", newToken);
+            // retry original request
+            postman.setNextRequest(pm.info.requestName);
+        } else {
+            pm.environment.unset("accessToken");
+        }
+    });
+}
