@@ -1,21 +1,21 @@
 import type { ErrorRequestHandler } from "express";
-// import { CastError } from '../error/Cast.error.js';
-// import { DuplicatError } from '../error/Duplicate.error.js';
-// import { ValidationError } from '../error/Validation.error.js';
+import { DuplicatError } from "../error/Duplicat.error.js";
+import { CastError } from "../error/Cast.error.js";
+import { ValidationError } from "../error/Validation.error.js";
 
 const errorMiddleware: ErrorRequestHandler = (err, req, res, next) => {
   // Error Decoration / Normalization Section
-  // if (err.name === 'ValidationError') {
-  //   err = new ValidationError(err);
-  // }
+  if (err.name === "ValidationError") {
+    err = new ValidationError(err);
+  }
 
-  // if (err.name === 'CastError') {
-  //   err = new CastError(err);
-  // }
+  if (err.name === "CastError") {
+    err = new CastError(err);
+  }
 
-  // if (err.code === 11000) {
-  //   err = new DuplicatError(err);
-  // }
+  if (err.code === 11000) {
+    err = new DuplicatError(err);
+  }
 
   // Default Error Properties Section
   err.statusCode = err.statusCode || 500;

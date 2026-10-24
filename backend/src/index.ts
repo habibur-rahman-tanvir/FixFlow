@@ -5,8 +5,11 @@ import path from "path";
 import fs from "fs";
 import https from "https";
 import { logger } from "./config/logger.js";
+import connectDatabase from "./config/db.js";
 
 const PORT = process.env.PORT || 8000;
+
+await connectDatabase();
 
 if (isProduction()) {
   app.listen(PORT, () => {
