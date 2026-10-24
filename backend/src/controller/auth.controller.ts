@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import { z } from "zod";
 import { AppError } from "../error/App.error.js";
 import { createUser } from "../services/user.service.js";
+import { User } from "../model/user.model.js";
 
 const signupSchema = z.object({
   name: z
@@ -48,7 +49,25 @@ export const signupController: RequestHandler = async (req, res, next) => {
 };
 
 export const loginController: RequestHandler = async (req, res) => {
-  res.send("Login user");
+  const { email, password } = req.body || {};
+  // TODO: validate email and password
+
+  const user = await User.findOne({ email });
+
+  if (!user || !(await user.verifyPassword(password))) {
+    throw new AppError("Inavlid email or password", 401);
+  }
+
+  req.session.user = {
+    _id: user._id,
+    email: user.email,
+    role: user.role,
+  };
+
+  res.json({
+    status: "success",
+    message: "Login successful",
+  });
 };
 
 export const logoutController: RequestHandler = async (req, res) => {

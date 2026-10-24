@@ -1,7 +1,29 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Model, Schema, type HydratedDocument } from "mongoose";
 import bcrypt from "bcrypt";
 
-const userSchema = new Schema(
+interface User {
+  name: string;
+  email: string;
+  hashedPass: string;
+  isEmailVerified: boolean;
+  avatar?: {
+    url?: string;
+    publicId?: string;
+  } | null;
+  userStatus: "active" | "suspended" | "deleted";
+  role: "visitor" | "member" | "admin" | "manager" | "technician";
+  managerOf: mongoose.Types.ObjectId[];
+  technicianOf: mongoose.Types.ObjectId[];
+  memberOf?: mongoose.Types.ObjectId | null;
+}
+
+interface UserMethods {
+  verifyPassword(password: string): Promise<boolean>;
+}
+
+type UserDocument = HydratedDocument<User, UserMethods>;
+
+const userSchema = new Schema<User>(
   {
     name: {
       type: String,
@@ -72,10 +94,16 @@ userSchema.pre("save", async function () {
   this.hashedPass = await bcrypt.hash(this.hashedPass, salt);
 });
 
-userSchema.methods.verifyPassword = async function (password: string) {
-  return bcrypt.compare(password, this.password);
+userSchema.methods.verifyPassword = async function (
+  this: UserDocument,
+  password: string,
+): Promise<boolean> {
+  return bcrypt.compare(password, this.hashedPass);
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<User, Model<User, {}, UserMethods>>(
+  "User",
+  userSchema,
+);
 
 export { User };
