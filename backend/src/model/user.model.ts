@@ -1,21 +1,6 @@
 import mongoose, { Model, Schema, type HydratedDocument } from "mongoose";
 import bcrypt from "bcrypt";
-
-interface User {
-  name: string;
-  email: string;
-  hashedPass: string;
-  isEmailVerified: boolean;
-  avatar?: {
-    url?: string;
-    publicId?: string;
-  } | null;
-  userStatus: "active" | "suspended" | "deleted";
-  role: "visitor" | "member" | "admin" | "manager" | "technician";
-  managerOf: mongoose.Types.ObjectId[];
-  technicianOf: mongoose.Types.ObjectId[];
-  memberOf?: mongoose.Types.ObjectId | null;
-}
+import type { User } from "../dto/user/user.dto.js";
 
 interface UserMethods {
   verifyPassword(password: string): Promise<boolean>;
@@ -36,14 +21,14 @@ const userSchema = new Schema<User>(
       unique: true,
     },
 
-    hashedPass: {
+    verifiedBy: {
       type: String,
-      required: [true, "Password required"],
+      enum: ["email", "google"],
+      required: [true, "Verifying is required"],
     },
 
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
+    password: {
+      type: String,
     },
 
     avatar: {
@@ -89,21 +74,23 @@ const userSchema = new Schema<User>(
 );
 
 userSchema.pre("save", async function () {
-  if (!this.isModified("hashedPass")) return;
+  if (this.verifiedBy !== "email" || !this.password) return;
+  if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
-  this.hashedPass = await bcrypt.hash(this.hashedPass, salt);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 userSchema.methods.verifyPassword = async function (
   this: UserDocument,
   password: string,
 ): Promise<boolean> {
-  return bcrypt.compare(password, this.hashedPass);
+  if (!this.password) return false;
+  return bcrypt.compare(password, this.password);
 };
 
-const User = mongoose.model<User, Model<User, {}, UserMethods>>(
+const UserModel = mongoose.model<User, Model<User, {}, UserMethods>>(
   "User",
   userSchema,
 );
 
-export { User };
+export { UserModel };

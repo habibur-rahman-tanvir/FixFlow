@@ -1,29 +1,43 @@
-import { AppError } from "../error/App.error.js";
-import { User } from "../model/user.model.js";
+import { UserModel } from "../model/user.model.js";
 
-export const createUser = async (
-  name: string,
-  email: string,
-  password: string,
-) => {
+type UserInput =
+  | {
+      name: string;
+      email: string;
+      verifiedBy: "email";
+      password: string;
+    }
+  | {
+      name: string;
+      email: string;
+      verifiedBy: "google";
+      password?: string;
+    };
+
+export const createUser = async ({
+  name,
+  email,
+  verifiedBy,
+  password,
+}: UserInput) => {
   const safeName = name.trim();
   const safeEmail = email.trim().toLowerCase();
 
-  if (!safeName || !safeEmail || !password) {
-    throw new AppError("Name, email, and password are required", 400);
-  }
+  // TODO: validate
 
-  // const existingUser = await User.findOne({ email: safeEmail }).lean();
+  const existingUser = await UserModel.findOne({
+    email: safeEmail,
+    verifiedBy,
+  });
 
-  // if (existingUser) {
-  //   throw new AppError("Email already registered", 409);
-  // }
-
-  const user = await User.create({
+  const query: any = {
     name: safeName,
     email: safeEmail,
-    hashedPass: password,
-  });
+    verifiedBy: verifiedBy,
+  };
+  if (verifiedBy === "email") query.password = password;
+
+  const user = existingUser ?? (await UserModel.create(query));
 
   return {
     _id: user._id,

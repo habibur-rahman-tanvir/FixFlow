@@ -14,7 +14,7 @@ authRouter.use(userSession);
 
 authRouter.post("/signup", signupController);
 authRouter.post("/login", loginController);
-authRouter.post("/google-auth", googleAuthController);
+authRouter.post("/google", googleAuthController);
 authRouter.post("/logout", logoutController);
 
 authRouter.post("/refresh", refreshAccessToken);
