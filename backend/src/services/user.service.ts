@@ -25,15 +25,11 @@ export const createUser = async (
     hashedPass: password,
   });
 
-  console.log("New User created");
-
   return {
     _id: user._id,
     name: user.name,
     email: user.email,
     role: user.role,
     userStatus: user.userStatus,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
   };
 };
