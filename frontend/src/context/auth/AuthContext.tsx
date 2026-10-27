@@ -3,19 +3,44 @@
 import { api } from "@/lib/axios/client";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  type Dispatch,
+  ReactNode,
+  type SetStateAction,
+  useContext,
+  useState,
+} from "react";
 
-const AuthContext = createContext<any>(undefined);
+interface GoogleAuthResult {
+  code?: string;
+}
+
+interface AuthContextType {
+  uiBlocked: boolean;
+  isProcessing: boolean;
+  loginWithGoogle: () => void;
+  actionType: "signup" | "login";
+  setActionType: Dispatch<SetStateAction<"signup" | "login">>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [uiBlocked, setUiBlocked] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [actionType, setActionType] = useState<"signup" | "login">("signup");
+
   const router = useRouter();
 
-  const googleResponse = async (authResult: any) => {
+  const googleResponse = async (
+    authResult: GoogleAuthResult,
+  ): Promise<void> => {
     if (!authResult || !authResult.code) {
-      setIsProcessing(false);
+      setUiBlocked(false);
       return;
     }
+    setUiBlocked(true);
     setIsProcessing(true);
     try {
       const res = await api.post(
@@ -28,33 +53,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err: any) {
       console.error("AuthErr:", err);
     } finally {
+      setUiBlocked(false);
       setIsProcessing(false);
     }
   };
 
   const googleLogin = useGoogleLogin({
     onSuccess: googleResponse,
-
-    onError: (error) => {
-      console.error("Google login error:", error);
-      setIsProcessing(false);
+    onError: () => {
+      // console.error("Google login error:", error);
+      setUiBlocked(false);
     },
-
-    onNonOAuthError: (error) => {
-      console.error("Google popup error:", error);
-      setIsProcessing(false);
+    onNonOAuthError: () => {
+      // console.error("Google popup error:", error);
+      setUiBlocked(false);
     },
     flow: "auth-code",
   });
 
   const loginWithGoogle = () => {
     if (isProcessing) return;
-    setIsProcessing(true);
+    setUiBlocked(true);
     googleLogin();
   };
 
   return (
-    <AuthContext.Provider value={{ isProcessing, loginWithGoogle }}>
+    <AuthContext.Provider
+      value={{
+        uiBlocked,
+        isProcessing,
+        loginWithGoogle,
+        actionType,
+        setActionType,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

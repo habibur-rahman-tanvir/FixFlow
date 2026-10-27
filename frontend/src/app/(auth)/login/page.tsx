@@ -15,23 +15,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
-  const { isProcessing, loginWithGoogle } = useAuth();
+  const {
+    isProcessing,
+    loginWithGoogle,
+    uiBlocked,
+    actionType,
+    setActionType,
+  } = useAuth();
 
   return (
     <div className="h-dvh flex justify-center items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>
+            {actionType === "login"
+              ? "Login to your account"
+              : "Create a new account"}
+          </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your info below to{" "}
+            {actionType === "login" ? "login to your" : "create a new"} account
           </CardDescription>
           <CardAction>
-            <Button variant="link">Sign Up</Button>
+            <Button
+              variant="link"
+              onClick={() =>
+                setActionType((prev: "signup" | "login") =>
+                  prev === "signup" ? "login" : "signup",
+                )
+              }
+            >
+              {actionType === "signup" ? "Login" : "Sign Up"}
+            </Button>
           </CardAction>
         </CardHeader>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
+              {actionType == "signup" && (
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+              )}
+
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -41,6 +73,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
+
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
@@ -48,7 +81,7 @@ export default function LoginPage() {
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    {actionType === "login" && "Forgot your password?"}
                   </a>
                 </div>
                 <Input id="password" type="password" required />
@@ -58,15 +91,15 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex-col gap-2">
           <Button type="submit" className="w-full">
-            Login
+            {actionType === "signup" ? "Create" : "Login"}
           </Button>
           <Button
             variant="outline"
-            className="w-full disabled:bg-red-600"
+            className="w-full disabled:opacity-55"
             onClick={loginWithGoogle}
-            disabled={isProcessing}
+            disabled={uiBlocked}
           >
-            Login with Google
+            Login with Google {isProcessing && "..."}
           </Button>
         </CardFooter>
       </Card>
