@@ -21,6 +21,10 @@ export default function LoginPage() {
     uiBlocked,
     actionType,
     setActionType,
+    handleInput,
+    formInput,
+    handleSubmit,
+    fieldsError,
   } = useAuth();
 
   return (
@@ -54,7 +58,7 @@ export default function LoginPage() {
         </CardHeader>
 
         <CardContent>
-          <form>
+          <form id="myForm" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               {/* Animated Name Field */}
               <div
@@ -65,30 +69,44 @@ export default function LoginPage() {
                 }`}
               >
                 <div className="min-h-0 overflow-hidden">
-                  <div className="grid gap-2 pb-1">
+                  <div className="grid gap-1 pb-1">
                     <Label htmlFor="name">Name</Label>
                     <Input
                       id="name"
+                      name="name"
                       type="text"
+                      value={formInput.name}
                       placeholder="Enter your name"
-                      required={actionType === "signup"}
+                      // required={actionType === "signup"}
                       tabIndex={actionType === "signup" ? 0 : -1}
+                      onChange={handleInput}
                     />
+                    {fieldsError.name && (
+                      <p className="text-red-500/75 italic">
+                        {fieldsError.name}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-1">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
+                  value={formInput.email}
                   placeholder="m@example.com"
-                  required
+                  // required
+                  onChange={handleInput}
                 />
+                {fieldsError.email && (
+                  <p className="text-red-500/75 italic">{fieldsError.email}</p>
+                )}
               </div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-1">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
 
@@ -100,7 +118,21 @@ export default function LoginPage() {
                   </a>
                 </div>
 
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formInput.password}
+                  // minLength={8}
+                  // maxLength={32}
+                  // required
+                  onChange={handleInput}
+                />
+                {fieldsError.password && (
+                  <p className="text-red-500/75 italic">
+                    {fieldsError.password}
+                  </p>
+                )}
               </div>
             </div>
           </form>
@@ -109,6 +141,7 @@ export default function LoginPage() {
         <CardFooter className="flex-col gap-2">
           <Button
             type="submit"
+            form="myForm"
             className="w-full transition-all duration-200 ease-in-out"
           >
             {actionType === "signup" ? "Create" : "Login"}

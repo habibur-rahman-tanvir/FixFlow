@@ -2,12 +2,15 @@
 
 import { api } from "@/lib/axios/client";
 import { useGoogleLogin } from "@react-oauth/google";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import {
+  ChangeEvent,
   createContext,
   type Dispatch,
   ReactNode,
   type SetStateAction,
+  SubmitEvent,
   useContext,
   useState,
 } from "react";
@@ -16,12 +19,22 @@ interface GoogleAuthResult {
   code?: string;
 }
 
+type FormInput = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 interface AuthContextType {
   uiBlocked: boolean;
   isProcessing: boolean;
   loginWithGoogle: () => void;
   actionType: "signup" | "login";
   setActionType: Dispatch<SetStateAction<"signup" | "login">>;
+  handleInput: (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => void;
+  formInput: FormInput;
+  handleSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
+  fieldsError: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,8 +43,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [uiBlocked, setUiBlocked] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [actionType, setActionType] = useState<"signup" | "login">("signup");
+  const [formInput, setFormInput] = useState<FormInput>({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [fieldsError, setFieldsError] = useState<any>({});
 
   const router = useRouter();
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
+    setFormInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFieldsError((prev: any) => ({ ...prev, [e.target.name]: "" }));
+  };
+
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUiBlocked(true);
+    setIsProcessing(true);
+
+    try {
+      const res = await api.post(`/api/auth/${actionType}`, {
+        name: formInput.name,
+        email: formInput.email,
+        password: formInput.password,
+      });
+
+      if (res.statusText === "OK") {
+        if (actionType === "login") {
+          router.replace("");
+        } else {
+          router.replace("/verify");
+        }
+      }
+    } catch (error) {
+      if (!(error instanceof AxiosError)) throw error;
+      if (error.response?.status === 422) {
+        setFieldsError(error.response.data?.errors);
+      }
+    } finally {
+      setUiBlocked(false);
+      setIsProcessing(false);
+    }
+  };
 
   const googleResponse = async (
     authResult: GoogleAuthResult,
@@ -47,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         `/api/auth/google?code=${encodeURIComponent(authResult.code)}`,
       );
       if (res.status === 201 || res.status === 200) {
-        router.push("/profile");
+        router.replace("/profile");
         return;
       }
     } catch (err: any) {
@@ -85,6 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginWithGoogle,
         actionType,
         setActionType,
+        handleInput,
+        formInput,
+        handleSubmit,
+        fieldsError,
       }}
     >
       {children}

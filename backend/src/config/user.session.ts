@@ -1,25 +1,22 @@
 import MongoStore from "connect-mongo";
 import session from "express-session";
 import { SESSION_EXPIRE_TIME_DAY } from "./config.js";
-import { logger } from "./logger.js";
 import type e from "express";
+import { envERROR } from "../utils/checkENV.js";
 
-const dataBaseUrl = process.env.MONGODB_URI;
-
-if (!dataBaseUrl) {
-  logger.error("Database url not found");
-  throw new Error("Database url not found");
-}
+const { MONGODB_URI, USER_SESSION_SECRET } = envERROR({
+  MONGODB_URI: process.env.MONGODB_URI,
+  USER_SESSION_SECRET: process.env.USER_SESSION_SECRET,
+});
 
 const mongoStore = MongoStore.create({
-  mongoUrl: dataBaseUrl,
+  mongoUrl: MONGODB_URI,
   autoRemove: "native",
-  collectionName: "session-data",
+  collectionName: "user-session-data",
 });
 
 const userSession: e.RequestHandler = session({
-  // TODO: configure secret
-  secret: "fgiuefkh",
+  secret: USER_SESSION_SECRET,
   store: mongoStore,
   resave: false,
   saveUninitialized: false,

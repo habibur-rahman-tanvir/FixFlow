@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import { response, type RequestHandler } from "express";
 import { z } from "zod";
 import { AppError } from "../error/App.error.js";
 import { createUser } from "../services/user.service.js";
@@ -7,6 +7,8 @@ import jwt from "jsonwebtoken";
 import { JWT_EXPIRE_TIME_MINUTES } from "../config/config.js";
 import { oauth2client } from "../config/google.config.js";
 import axios from "axios";
+import { createOPT } from "../utils/util.js";
+import { emailQueue } from "../config/queue.js";
 
 const signupSchema = z.object({
   name: z
@@ -30,27 +32,36 @@ const signupSchema = z.object({
 export const signupController: RequestHandler = async (req, res, next) => {
   try {
     const { name, email, password } = signupSchema.parse(req.body);
-    const user = await createUser({
-      name,
-      email,
-      verifiedBy: "email",
-      password,
-    });
-    res.status(201).json({
+
+    const otp = createOPT();
+    req.session.otp = { name, email, password, otp };
+
+    // TODO: add otp email in email queue (AI, skip it)
+    await emailQueue.add(
+      "anyName",
+      { name, email, otp },
+      // { attempts: 3 },
+    );
+
+    res.json({
       status: "success",
-      message: "User created successfully",
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        userStatus: user.userStatus,
-      },
+      message: "We sent an verification otp/link in your email.",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const message = error.issues.map((issue) => issue.message).join(", ");
-      return next(new AppError(message, 400));
+      const flattenError = error.issues.reduce(
+        (acc, current) => {
+          acc[current.path.join(".")] = current.message;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
+      return res.status(422).json({
+        status: "fail",
+        message: "Validation failed",
+        errors: flattenError,
+      });
     }
     return next(error);
   }
@@ -90,7 +101,6 @@ export const logoutController: RequestHandler = async (req, res) => {
 export const googleAuthController: RequestHandler = async (req, res) => {
   const { code } = req.query;
   if (!code) throw new AppError("Google auth code not found", 400);
-
   try {
     const googleRes = await oauth2client.getToken(code as string);
     oauth2client.setCredentials(googleRes.tokens);

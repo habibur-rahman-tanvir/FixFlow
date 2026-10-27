@@ -10,5 +10,11 @@ declare module "express-session" {
       role: "visitor" | "member" | "admin" | "manager" | "technician";
       userStatus: "active" | "suspended" | "deleted";
     };
+    otp?: {
+      name: string;
+      email: string;
+      password: string;
+      otp: string | number;
+    };
   }
 }

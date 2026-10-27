@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "dev:worker": "tsx watch src/workers/worker.ts",
+    "dev:all": "concurrently -n SERVER,WORKER -c blue,green \"pnpm dev\" \"pnpm dev:worker\"",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "worker": "node dist/workers/worker.js"
@@ -26,16 +27,17 @@
     "bcrypt": "^6.0.0",
     "bullmq": "^6.4.0",
     "connect-mongo": "^6.0.0",
+    "connect-redis": "^10.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",
     "express": "^5.3.0",
     "express-session": "^1.19.0",
     "googleapis": "^188.0.0",
-    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.3",
     "morgan": "^1.12.1",
     "nodemailer": "^10.2.1",
+    "redis": "^6.3.0",
     "winston": "^3.19.0",
     "zod": "^4.6.7"
   },
@@ -47,6 +49,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.6.5",
+    "concurrently": "^10.0.6",
     "cross-env": "^10.1.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
