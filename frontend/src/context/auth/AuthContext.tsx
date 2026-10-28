@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (actionType === "login") {
           router.replace("");
         } else {
-          router.replace("/verify");
+          router.push("/verify");
         }
       }
     } catch (error) {

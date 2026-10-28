@@ -17,10 +17,28 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function VerifyPage() {
   const [otp, setOtp] = useState("");
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(
+        new RegExp(`(?:^|; )${name}=([^;]*)`),
+      );
+      if (!match) return null;
+      const raw = decodeURIComponent(match[1]);
+      return JSON.parse(raw);
+    };
+    const otp = getCookie("otp");
+    if (!otp || otp.expireAt < Date.now()) {
+      router.replace("/signup");
+    }
+  }, [router]);
 
   return (
     <div className="h-dvh flex justify-center items-center">

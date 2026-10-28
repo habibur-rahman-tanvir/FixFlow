@@ -1,5 +1,7 @@
 "use client";
 
+// import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +15,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
   const {
     isProcessing,
     loginWithGoogle,
@@ -26,6 +30,21 @@ export default function SignupPage() {
     handleSubmit,
     fieldsError,
   } = useAuth();
+
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(
+        new RegExp(`(?:^|; )${name}=([^;]*)`),
+      );
+      if (!match) return null;
+      const raw = decodeURIComponent(match[1]);
+      return JSON.parse(raw);
+    };
+    const otp = getCookie("otp");
+    if (otp && otp.expireAt > Date.now()) {
+      router.push("/verify");
+    }
+  }, [router]);
 
   return (
     <div className="flex h-dvh items-center justify-center p-4">
