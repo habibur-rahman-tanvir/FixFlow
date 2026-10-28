@@ -4,7 +4,10 @@ import { AppError } from "../error/App.error.js";
 import { createUser } from "../services/user.service.js";
 import { UserModel } from "../model/user.model.js";
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRE_TIME_MINUTES } from "../config/config.js";
+import {
+  JWT_EXPIRE_TIME_MINUTES,
+  OTP_EXPIRE_TIME_MINUTE,
+} from "../config/config.js";
 import { oauth2client } from "../config/google.config.js";
 import axios from "axios";
 import { createOPT } from "../utils/util.js";
@@ -34,14 +37,19 @@ export const signupController: RequestHandler = async (req, res, next) => {
     const { name, email, password } = signupSchema.parse(req.body);
 
     const otp = createOPT();
-    req.session.otp = { name, email, password, otp };
 
-    // TODO: add otp email in email queue (AI, skip it)
-    await emailQueue.add(
-      "anyName",
-      { name, email, otp },
-      // { attempts: 3 },
-    );
+    req.session.otp = { name, email, password, otp };
+    const expireAt = Date.now() + 1000 * 60 * OTP_EXPIRE_TIME_MINUTE;
+
+    res.cookie("otp", JSON.stringify({ expireAt }), {
+      maxAge: 1000 * 60 * OTP_EXPIRE_TIME_MINUTE,
+      httpOnly: false,
+      sameSite: "none",
+      secure: true,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // await emailQueue.add("anyName", { name, email, otp });
 
     res.json({
       status: "success",

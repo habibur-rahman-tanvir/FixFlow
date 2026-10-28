@@ -18,6 +18,7 @@ const mongoStore = MongoStore.create({
 
 const otpSession: e.RequestHandler = session({
   secret: OTP_SESSION_SECRET,
+  name: "otp.id",
   store: mongoStore,
   resave: false,
   saveUninitialized: false,

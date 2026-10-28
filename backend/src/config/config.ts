@@ -1,7 +1,7 @@
 export const SESSION_EXPIRE_TIME_DAY = 29;
 export const JWT_EXPIRE_TIME_MINUTES = 5;
 
-export const OTP_EXPIRE_TIME_MINUTE = 0.5;
+export const OTP_EXPIRE_TIME_MINUTE = 2;
 
 export const WHITE_LIST = [
   "https://localhost:3000",
