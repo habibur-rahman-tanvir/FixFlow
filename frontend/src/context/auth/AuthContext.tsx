@@ -79,7 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (res.statusText === "OK") {
         if (actionType === "login") {
-          router.replace("");
+          toast.success(res.data.message);
+          router.replace("/profile");
         } else {
           router.push("/verify");
         }
@@ -89,6 +90,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error.response?.status === 422) {
         setFieldsError(error.response.data?.errors);
       }
+      toast.error(
+        error.response?.data.message ?? "Something went wrong [frontend pblm]",
+      );
     } finally {
       setUiBlocked(false);
       setIsSignupOrLoginProcessing(false);

@@ -164,6 +164,13 @@ export const loginController: RequestHandler = async (req, res) => {
   res.json({
     status: "success",
     message: "Login successful",
+    data: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      userStatus: user.userStatus,
+    },
   });
 };
 
