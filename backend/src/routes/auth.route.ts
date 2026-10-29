@@ -5,17 +5,19 @@ import {
   loginController,
   logoutController,
   signupController,
+  verifyOtpController,
 } from "../controller/auth.controller.js";
 import userSession from "../config/user.session.js";
-import otpSession from "../config/otp.session.js";
 
 const authRouter: Router = express.Router();
 
-authRouter.post("/signup", otpSession, signupController);
-authRouter.post("/login", userSession, loginController);
-authRouter.post("/google", userSession, googleAuthController);
-authRouter.post("/logout", userSession, logoutController);
+authRouter.use(userSession);
 
-authRouter.post("/refresh", userSession, refreshAccessToken);
+authRouter.post("/signup", signupController);
+authRouter.post("/verify", verifyOtpController);
+authRouter.post("/login", loginController);
+authRouter.post("/google", googleAuthController);
+authRouter.post("/logout", logoutController);
+authRouter.post("/refresh", refreshAccessToken);
 
 export default authRouter;

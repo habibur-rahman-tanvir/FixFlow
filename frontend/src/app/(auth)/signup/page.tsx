@@ -16,11 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SignupPage() {
   const router = useRouter();
   const {
-    isProcessing,
+    isGoogleProcessing,
+    isSignupOrLoginProcessing,
     loginWithGoogle,
     uiBlocked,
     actionType,
@@ -163,7 +165,8 @@ export default function SignupPage() {
             form="myForm"
             className="w-full transition-all duration-200 ease-in-out"
           >
-            {actionType === "signup" ? "Create" : "Login"}
+            {actionType === "signup" ? "Create" : "Login"}{" "}
+            {isSignupOrLoginProcessing && <Spinner />}
           </Button>
 
           <Button
@@ -172,7 +175,7 @@ export default function SignupPage() {
             onClick={loginWithGoogle}
             disabled={uiBlocked}
           >
-            Login with Google {isProcessing && "..."}
+            Login with Google {isGoogleProcessing && <Spinner />}
           </Button>
         </CardFooter>
       </Card>

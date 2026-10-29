@@ -14,7 +14,9 @@ declare module "express-session" {
       name: string;
       email: string;
       password: string;
-      otp: string | number;
+      otp: string;
+      otpAttemp?: number;
+      expiresAt: number;
     };
   }
 }

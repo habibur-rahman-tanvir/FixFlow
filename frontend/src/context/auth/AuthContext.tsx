@@ -14,6 +14,7 @@ import {
   useContext,
   useState,
 } from "react";
+import toast from "react-hot-toast";
 
 interface GoogleAuthResult {
   code?: string;
@@ -27,7 +28,8 @@ type FormInput = {
 
 interface AuthContextType {
   uiBlocked: boolean;
-  isProcessing: boolean;
+  isGoogleProcessing: boolean;
+  isSignupOrLoginProcessing: boolean;
   loginWithGoogle: () => void;
   actionType: "signup" | "login";
   setActionType: Dispatch<SetStateAction<"signup" | "login">>;
@@ -35,13 +37,19 @@ interface AuthContextType {
   formInput: FormInput;
   handleSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
   fieldsError: any;
+  verifyAccountWithOtp: (otp: string) => void;
+  isVerifingOtp: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [uiBlocked, setUiBlocked] = useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isGoogleProcessing, setIsGoogleProcessing] = useState<boolean>(false);
+  const [isSignupOrLoginProcessing, setIsSignupOrLoginProcessing] =
+    useState<boolean>(false);
+  const [isVerifingOtp, setIsVerifingOtp] = useState<boolean>(false);
+
   const [actionType, setActionType] = useState<"signup" | "login">("signup");
   const [formInput, setFormInput] = useState<FormInput>({
     name: "",
@@ -60,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUiBlocked(true);
-    setIsProcessing(true);
+    setIsSignupOrLoginProcessing(true);
 
     try {
       const res = await api.post(`/api/auth/${actionType}`, {
@@ -83,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } finally {
       setUiBlocked(false);
-      setIsProcessing(false);
+      setIsSignupOrLoginProcessing(false);
     }
   };
 
@@ -95,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     setUiBlocked(true);
-    setIsProcessing(true);
+    setIsGoogleProcessing(true);
     try {
       const res = await api.post(
         `/api/auth/google?code=${encodeURIComponent(authResult.code)}`,
@@ -108,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("AuthErr:", err);
     } finally {
       setUiBlocked(false);
-      setIsProcessing(false);
+      setIsGoogleProcessing(false);
     }
   };
 
@@ -126,16 +134,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const loginWithGoogle = () => {
-    if (isProcessing) return;
+    if (isGoogleProcessing) return;
     setUiBlocked(true);
     googleLogin();
+  };
+
+  const verifyAccountWithOtp = async (otp: string) => {
+    setIsVerifingOtp(true);
+    try {
+      const res = await api.post("/api/auth/verify", { otp });
+      if (res.status === 200) {
+        toast.success(res.data.message);
+
+        // Clear otp cookie here
+        document.cookie =
+          "otp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
+
+        router.replace("/profile");
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data.message);
+      }
+    } finally {
+      setIsVerifingOtp(false);
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
         uiBlocked,
-        isProcessing,
+        isGoogleProcessing,
+        isSignupOrLoginProcessing,
+        isVerifingOtp,
         loginWithGoogle,
         actionType,
         setActionType,
@@ -143,6 +175,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         formInput,
         handleSubmit,
         fieldsError,
+        verifyAccountWithOtp,
       }}
     >
       {children}

@@ -17,11 +17,14 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth/AuthContext";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function VerifyPage() {
   const [otp, setOtp] = useState("");
+  const { verifyAccountWithOtp, isVerifingOtp } = useAuth();
 
   const router = useRouter();
 
@@ -90,8 +93,13 @@ export default function VerifyPage() {
         </CardContent>
         <CardFooter>
           <Field>
-            <Button type="submit" className="w-full">
-              Verify
+            <Button
+              disabled={otp.length < 6 || isVerifingOtp}
+              type="submit"
+              className="w-full disabled:bg-black/65"
+              onClick={() => verifyAccountWithOtp(otp)}
+            >
+              Verify {isVerifingOtp && <Spinner />}
             </Button>
             <div className="text-sm text-muted-foreground">
               Having trouble signing in?{" "}
