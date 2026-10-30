@@ -1,5 +1,6 @@
 "use client";
 
+import { User } from "@/dto/user/user.dto";
 import { api } from "@/lib/axios/client";
 import { useGoogleLogin } from "@react-oauth/google";
 import { AxiosError } from "axios";
@@ -12,9 +13,11 @@ import {
   type SetStateAction,
   SubmitEvent,
   useContext,
+  useReducer,
   useState,
 } from "react";
 import toast from "react-hot-toast";
+import { initialUserState, userReducer } from "./userReducer";
 
 interface GoogleAuthResult {
   code?: string;
@@ -39,6 +42,11 @@ interface AuthContextType {
   fieldsError: any;
   verifyAccountWithOtp: (otp: string) => void;
   isVerifingOtp: boolean;
+
+  user: User | null;
+  setUserData: (user: User | null) => void;
+  // updateUserData: (user: Partial<User>) => void;
+  clearUserData: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isSignupOrLoginProcessing, setIsSignupOrLoginProcessing] =
     useState<boolean>(false);
   const [isVerifingOtp, setIsVerifingOtp] = useState<boolean>(false);
+  const [userState, dispatchUser] = useReducer(userReducer, initialUserState);
 
   const [actionType, setActionType] = useState<"signup" | "login">("signup");
   const [formInput, setFormInput] = useState<FormInput>({
@@ -59,6 +68,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [fieldsError, setFieldsError] = useState<any>({});
 
   const router = useRouter();
+
+  const setUserData = (user: User | null) => {
+    if (!user) {
+      dispatchUser({ type: "CLEAR_USER" });
+      return;
+    }
+    dispatchUser({ type: "SET_USER", payload: user });
+  };
+
+  // const updateUserData = (user: Partial<User>) => {
+  //   // dispatchUser({ type: "UPDATE_USER", payload: user });
+  // };
+
+  const clearUserData = () => {
+    dispatchUser({ type: "CLEAR_USER" });
+  };
 
   const handleInput = (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
     setFormInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -79,6 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (res.statusText === "OK") {
         if (actionType === "login") {
+          const user = res.data?.data;
+          if (user) setUserData(user);
           toast.success(res.data.message);
           router.replace("/profile");
         } else {
@@ -113,6 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         `/api/auth/google?code=${encodeURIComponent(authResult.code)}`,
       );
       if (res.status === 201 || res.status === 200) {
+        const user = res.data?.data;
+        if (user) setUserData(user);
         router.replace("/profile");
         return;
       }
@@ -127,11 +156,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const googleLogin = useGoogleLogin({
     onSuccess: googleResponse,
     onError: () => {
-      // console.error("Google login error:", error);
       setUiBlocked(false);
     },
     onNonOAuthError: () => {
-      // console.error("Google popup error:", error);
       setUiBlocked(false);
     },
     flow: "auth-code",
@@ -148,12 +175,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.post("/api/auth/verify", { otp });
       if (res.status === 200) {
+        const user = res.data?.data;
+        if (user) setUserData(user);
         toast.success(res.data.message);
-
-        // Clear otp cookie here
         document.cookie =
           "otp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
-
         router.replace("/profile");
       }
     } catch (err) {
@@ -180,6 +206,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleSubmit,
         fieldsError,
         verifyAccountWithOtp,
+
+        user: userState.user,
+        setUserData,
+        clearUserData,
       }}
     >
       {children}
