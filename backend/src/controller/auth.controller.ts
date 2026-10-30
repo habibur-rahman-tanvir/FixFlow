@@ -12,6 +12,7 @@ import { oauth2client } from "../config/google.config.js";
 import axios from "axios";
 import { createOPT } from "../utils/util.js";
 import { emailQueue } from "../config/queue.js";
+import type { JwtPayload } from "../dto/jwt/jwt.dto.js";
 
 const signupSchema = z.object({
   name: z
@@ -229,18 +230,18 @@ export const googleAuthController: RequestHandler = async (req, res) => {
 export const refreshAccessToken: RequestHandler = async (req, res) => {
   if (!req.session.user) throw new AppError("User not signed in", 401);
   const secret = process.env.JWT_SECRET || "JWT_SECRET";
-  const token = jwt.sign(
-    {
-      _id: req.session.user?._id,
-      email: req.session.user?.email,
-      role: req.session.user.role,
-    },
-    secret,
-    {
-      noTimestamp: true,
-      expiresIn: 60 * JWT_EXPIRE_TIME_MINUTES,
-    },
-  );
+
+  const jwtPayload: JwtPayload = {
+    _id: req.session.user?._id,
+    email: req.session.user?.email,
+    role: req.session.user.role,
+    userStatus: req.session.user.userStatus,
+  };
+
+  const token = jwt.sign(jwtPayload, secret, {
+    noTimestamp: true,
+    expiresIn: 60 * JWT_EXPIRE_TIME_MINUTES,
+  });
   res.setHeader("X-Access-Token", token);
   res.status(200).json({
     status: "success",
