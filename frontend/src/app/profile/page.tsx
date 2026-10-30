@@ -52,7 +52,7 @@ const ProfilePage = () => {
             <CardHeader className="border-b bg-muted/30 p-5 sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-emerald-500 text-lg font-semibold text-primary-foreground shadow-sm sm:h-20 sm:w-20">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-primary to-emerald-500 text-lg font-semibold text-primary-foreground shadow-sm sm:h-20 sm:w-20">
                     {dummyUser.avatar}
                   </div>
 
