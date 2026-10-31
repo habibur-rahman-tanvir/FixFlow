@@ -1,11 +1,10 @@
 import {
   Home,
   Users,
-  Settings,
   ClipboardList,
   Wrench,
-  ChartNoAxesCombined,
   LucideIcon,
+  BuildingComplexPlus,
 } from "lucide-react";
 
 export type SidebarItem = {
@@ -14,27 +13,34 @@ export type SidebarItem = {
   icon: LucideIcon;
 };
 
+// All are dummy.
+
 export const adminSidebarItems: SidebarItem[] = [
   {
     title: "Dashboard",
-    url: "/admin",
+    url: "/admin/dashboard/",
     icon: Home,
   },
   {
+    title: "Organizations",
+    url: "/admin/dashboard/organizations",
+    icon: BuildingComplexPlus,
+  },
+  {
     title: "Users",
-    url: "/admin/users",
+    url: "/admin/dashboard/users",
     icon: Users,
   },
-  {
-    title: "Reports",
-    url: "/admin/reports",
-    icon: ChartNoAxesCombined,
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-  },
+  // {
+  //   title: "Reports",
+  //   url: "/admin/reports",
+  //   icon: ChartNoAxesCombined,
+  // },
+  // {
+  //   title: "Settings",
+  //   url: "/admin/settings",
+  //   icon: Settings,
+  // },
 ];
 
 export const managerSidebarItems: SidebarItem[] = [
