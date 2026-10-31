@@ -1,9 +1,13 @@
+import { ModeToggle } from "@/components/next-theme/mode-toggle";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div>
+      <div className="bg-blue-600 p-1">
+        <ModeToggle />
+      </div>
       <div>
         <Link href={"/signup"}>
           <Button>Sign up</Button>
