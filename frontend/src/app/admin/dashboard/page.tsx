@@ -1,4 +1,4 @@
-import { ProtectedRoute } from "@/app/(auth)/protected-route";
+import { ProtectedRoute } from "@/app/(guards)/protected-route";
 
 export default function AdminDashboardPage() {
   return (

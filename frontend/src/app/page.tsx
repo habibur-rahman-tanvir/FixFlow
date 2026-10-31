@@ -14,6 +14,9 @@ export default function Home() {
         <Link href={"/profile"}>
           <Button>Profile</Button>
         </Link>
+        <Link href={"/logout"}>
+          <Button>Logout</Button>
+        </Link>
       </div>
       <div>
         <Link href={"/admin/dashboard"}>

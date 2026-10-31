@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/context/auth/AuthContext";
-import { ProtectedRoute } from "../(auth)/protected-route";
+import { ProtectedRoute } from "../(guards)/protected-route";
 
 const dummyUser = {
   name: "Alicia Morgan",

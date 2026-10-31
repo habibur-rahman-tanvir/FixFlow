@@ -23,7 +23,7 @@ export function ProtectedRoute({
     }
 
     if (!isAuthLoading && user && role !== undefined && user.role !== role) {
-      router.replace(`/profile`);
+      router.push(`/profile`);
     }
   }, [isAuthLoading, user, router, role]);
 

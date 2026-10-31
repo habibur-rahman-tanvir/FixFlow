@@ -42,6 +42,7 @@ interface AuthContextType {
   handleInput: (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => void;
   formInput: FormInput;
   handleSubmit: (e: SubmitEvent<HTMLFormElement>) => void;
+  handleLogout: () => void;
   fieldsError: any;
   verifyAccountWithOtp: (otp: string) => void;
   isVerifingOtp: boolean;
@@ -193,6 +194,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      setUiBlocked(true);
+
+      const res = await api.post("/api/auth/logout");
+      if (res.status === 200) {
+        toast.success(res.data.message);
+        clearUserData();
+        localStorage.removeItem("accessToken");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setUiBlocked(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
     async function initializeAuth() {
@@ -265,6 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fieldsError,
         verifyAccountWithOtp,
         isAuthLoading: loading,
+        handleLogout,
 
         user: userState.user,
         setUserData,
