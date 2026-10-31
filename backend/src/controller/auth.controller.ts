@@ -185,6 +185,7 @@ export const logoutController: RequestHandler = async (req, res) => {
   req.session.destroy((err) => {
     if (err) throw new AppError("Something went wrong");
     res.clearCookie("connect.sid");
+    res.clearCookie("otp");
     return res.json({
       status: "success",
       message: "Logout successfull",
