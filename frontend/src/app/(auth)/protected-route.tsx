@@ -11,7 +11,7 @@ export function ProtectedRoute({
   role,
 }: {
   children: ReactNode;
-  role: Role;
+  role?: Role;
 }) {
   const { user, isAuthLoading } = useAuth();
   const router = useRouter();
@@ -22,7 +22,7 @@ export function ProtectedRoute({
       return;
     }
 
-    if (!isAuthLoading && user && user.role !== role) {
+    if (!isAuthLoading && user && role !== undefined && user.role !== role) {
       router.replace(`/profile`);
     }
   }, [isAuthLoading, user, router, role]);
