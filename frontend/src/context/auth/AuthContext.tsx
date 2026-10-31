@@ -196,17 +196,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
     async function initializeAuth() {
+      if (!active) return;
       console.log("Initial auth.....");
       try {
-        if (!active) return;
         const res = await fetch(`${API_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
           cache: "no-cache",
         });
         const data = await res.json();
-
         if (data.accessToken) {
+          localStorage.setItem("accessToken", data.accessToken);
           const res2 = await fetch(`${API_URL}/api/profile/basic`, {
             method: "GET",
             headers: {
@@ -217,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const data2 = await res2.json();
           setUserData(data2);
         } else {
+          localStorage.removeItem("accessToken");
           setUserData(null);
         }
       } catch {
@@ -233,6 +234,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      setUserData(null);
+
+      if (window.location.pathname !== "/signup") {
+        router.replace("/signup");
+      }
+    };
+    window.addEventListener("auth:session-expired", handleSessionExpired);
+    return () => {
+      window.removeEventListener("auth:session-expired", handleSessionExpired);
+    };
+  }, [router]);
 
   return (
     <AuthContext.Provider

@@ -25,7 +25,6 @@ let failedQueue: {
   reject: (value: unknown) => void;
 }[] = [];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processQueue = (err: any, token = null) => {
   failedQueue.forEach((prom) => {
     if (err) {
@@ -41,10 +40,8 @@ api.interceptors.response.use(
   (response) => response,
   async (err) => {
     if (!(err instanceof AxiosError)) throw err;
-
     const originalRequest = err.config;
     if (!originalRequest) throw err;
-
     if (
       err.response &&
       err.response.status === 401 &&
@@ -63,10 +60,8 @@ api.interceptors.response.use(
             Promise.reject(err);
           });
       }
-
       originalRequest._retry = true;
       isRefreshing = true;
-
       try {
         const res = await axios.post(
           `${API_URL}/api/auth/refresh`,
@@ -83,15 +78,12 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         localStorage.removeItem("accessToken");
-
         if (
           typeof window !== "undefined" &&
           window.location.pathname !== "/signup"
         ) {
-          window.location.assign("/signup");
-          // Here is a big problem
+          window.dispatchEvent(new Event("auth:session-expired"));
         }
-
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
