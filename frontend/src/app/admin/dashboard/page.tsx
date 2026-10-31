@@ -1,3 +1,9 @@
+import { ProtectedRoute } from "@/app/(auth)/protected-route";
+
 export default function AdminDashboardPage() {
-  return <div>AdminDashboardPage</div>;
+  return (
+    <ProtectedRoute role="admin">
+      <div>AdminDashboardPage</div>;
+    </ProtectedRoute>
+  );
 }

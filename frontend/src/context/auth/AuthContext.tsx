@@ -13,11 +13,14 @@ import {
   type SetStateAction,
   SubmitEvent,
   useContext,
+  useEffect,
   useReducer,
   useState,
 } from "react";
 import toast from "react-hot-toast";
 import { initialUserState, userReducer } from "./userReducer";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface GoogleAuthResult {
   code?: string;
@@ -42,6 +45,7 @@ interface AuthContextType {
   fieldsError: any;
   verifyAccountWithOtp: (otp: string) => void;
   isVerifingOtp: boolean;
+  isAuthLoading: boolean;
 
   user: User | null;
   setUserData: (user: User | null) => void;
@@ -56,7 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isGoogleProcessing, setIsGoogleProcessing] = useState<boolean>(false);
   const [isSignupOrLoginProcessing, setIsSignupOrLoginProcessing] =
     useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
   const [isVerifingOtp, setIsVerifingOtp] = useState<boolean>(false);
+
   const [userState, dispatchUser] = useReducer(userReducer, initialUserState);
 
   const [actionType, setActionType] = useState<"signup" | "login">("signup");
@@ -76,10 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     dispatchUser({ type: "SET_USER", payload: user });
   };
-
-  // const updateUserData = (user: Partial<User>) => {
-  //   // dispatchUser({ type: "UPDATE_USER", payload: user });
-  // };
 
   const clearUserData = () => {
     dispatchUser({ type: "CLEAR_USER" });
@@ -191,6 +193,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  useEffect(() => {
+    let active = true;
+    async function initializeAuth() {
+      console.log("Initial auth.....");
+      try {
+        if (!active) return;
+        const res = await fetch(`${API_URL}/api/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          cache: "no-cache",
+        });
+        const data = await res.json();
+
+        if (data.accessToken) {
+          const res2 = await fetch(`${API_URL}/api/profile/basic`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${data.accessToken}`,
+            },
+            cache: "no-cache",
+          });
+          const data2 = await res2.json();
+          setUserData(data2);
+        } else {
+          setUserData(null);
+        }
+      } catch {
+        if (!active) return;
+        setUserData(null);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+    initializeAuth();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -206,6 +249,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleSubmit,
         fieldsError,
         verifyAccountWithOtp,
+        isAuthLoading: loading,
 
         user: userState.user,
         setUserData,

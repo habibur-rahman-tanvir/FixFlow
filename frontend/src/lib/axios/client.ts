@@ -86,10 +86,10 @@ api.interceptors.response.use(
 
         if (
           typeof window !== "undefined" &&
-          window.location.pathname !== "/login"
+          window.location.pathname !== "/signup"
         ) {
-          window.location.assign("/login");
-          // window.location.href = "/login";
+          window.location.assign("/signup");
+          // Here is a big problem
         }
 
         return Promise.reject(refreshError);

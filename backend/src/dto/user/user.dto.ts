@@ -8,17 +8,22 @@ interface User {
   _id: mongoose.Types.ObjectId | string;
   name: string;
   email: string;
+  role: Role;
+  userStatus: UserStatus;
   password?: string;
   verifiedBy: VerifiedBy;
   avatar?: {
     url: string;
     publicId: string;
   } | null;
-  userStatus: UserStatus;
-  role: Role;
   managerOf: mongoose.Types.ObjectId[];
   technicianOf: mongoose.Types.ObjectId[];
   memberOf?: mongoose.Types.ObjectId | null;
 }
+
+export type UserBasic = Pick<
+  User,
+  "_id" | "name" | "email" | "role" | "userStatus"
+>;
 
 export type { User };

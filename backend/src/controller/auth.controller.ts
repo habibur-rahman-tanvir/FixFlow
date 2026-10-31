@@ -141,7 +141,13 @@ export const verifyOtpController: RequestHandler = async (req, res, next) => {
     return res.json({
       status: "success",
       message: "Your account verified successfully",
-      data: savedUser,
+      data: {
+        _id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email,
+        role: savedUser.role,
+        userStatus: savedUser.userStatus,
+      },
     });
   } catch (error) {
     return next(error);

@@ -9,7 +9,8 @@
     "dev:all": "concurrently -n SERVER,WORKER -c blue,green \"pnpm dev\" \"pnpm dev:worker\"",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "worker": "node dist/workers/worker.js"
+    "worker": "node dist/workers/worker.js",
+    "create-admin": "tsx src/script/create-admin.ts"
   },
   "keywords": [],
   "author": "",

@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/context/auth/AuthContext";
 
 const dummyUser = {
   name: "Alicia Morgan",
@@ -27,7 +30,7 @@ const profileStats = [
 ];
 
 const infoRows = [
-  { label: "Email", value: dummyUser.email },
+  // { label: "Email", value: dummyUser.email },
   { label: "Verification", value: dummyUser.verifiedBy.toUpperCase() },
   { label: "Status", value: dummyUser.userStatus },
   { label: "Organization", value: dummyUser.memberOf },
@@ -44,6 +47,8 @@ const roleStyles: Record<string, string> = {
 };
 
 const ProfilePage = () => {
+  const { user } = useAuth();
+
   return (
     <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -58,16 +63,16 @@ const ProfilePage = () => {
 
                   <div>
                     <CardTitle className="text-2xl font-semibold tracking-tight">
-                      {dummyUser.name}
+                      {user?.name ? user.name : "[user name]"}
                     </CardTitle>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize ${roleStyles[dummyUser.role]}`}
                       >
-                        {dummyUser.role}
+                        {user?.role ? user.role : "[user role]"}
                       </span>
                       <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                        {dummyUser.userStatus}
+                        {user?.userStatus ? user.userStatus : "[active]"}
                       </span>
                     </div>
                   </div>
@@ -105,6 +110,14 @@ const ProfilePage = () => {
                 </CardDescription>
 
                 <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl border border-border/80 bg-background/70 p-3.5">
+                    <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      Email
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-foreground">
+                      {user?.email ? user.email : "[m@gmail.com]"}
+                    </p>
+                  </div>
                   {infoRows.map((row) => (
                     <div
                       key={row.label}

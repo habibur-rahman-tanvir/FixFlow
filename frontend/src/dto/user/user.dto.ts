@@ -8,7 +8,8 @@ type User = {
   email: string;
   role: Role;
   userStatus: UserStatus;
-  verifiedBy: VerifiedBy;
+
+  verifiedBy?: VerifiedBy;
   avatar?: {
     url: string;
   } | null;
@@ -16,5 +17,10 @@ type User = {
   technicianOf?: string[];
   memberOf?: string | null;
 };
+
+export type UserBasic = Pick<
+  User,
+  "_id" | "name" | "email" | "role" | "userStatus"
+>;
 
 export type { User };
