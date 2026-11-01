@@ -5,6 +5,7 @@ import { corsMiddleware } from "./middleware/cors.middleware.js";
 import authRouter from "./routes/auth.route.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import profileRouter from "./routes/profile.route.js";
+import orgRouter from "./routes/org.route.js";
 
 const app: Express = express();
 app.set("trust proxy", 1);
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api/profile", profileRouter);
+app.use("/api/organizations", orgRouter);
 
 app.get("/", async (req, res) => {
   res.send("Hello from FixFlow");
