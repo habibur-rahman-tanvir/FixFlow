@@ -24,8 +24,6 @@ export const createOrgController: RequestHandler = async (req, res) => {
     timezone,
   });
 
-  console.log(organization);
-
   return res.status(201).json({
     status: "success",
     message: "Organization created successfully",

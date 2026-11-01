@@ -5,7 +5,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const organizations = Array.from({ length: 250 }, (_, index) => ({
+const organizations = Array.from({ length: 32 }, (_, index) => ({
   id: index + 1,
   name: `Organization ${index + 1}`,
   slug: `organization-${index + 1}`,

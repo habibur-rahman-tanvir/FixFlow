@@ -5,12 +5,24 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/axios/client";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export default function AddOrganizationPage() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
     slug: "",
+    managerId: "",
     description: "",
     timezone: "",
   });
@@ -22,11 +34,43 @@ export default function AddOrganizationPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
-    console.log("Organization submitted:", form);
-    router.push("/admin/dashboard/organizations");
+    try {
+      const payload = {
+        name: form.name.trim(),
+        slug: form.slug.trim() || slugify(form.name),
+        ...(form.managerId.trim() ? { managerId: form.managerId.trim() } : {}),
+        ...(form.description.trim()
+          ? { description: form.description.trim() }
+          : {}),
+        ...(form.timezone.trim() ? { timezone: form.timezone.trim() } : {}),
+      };
+
+      await api.post("/api/organizations", payload);
+
+      setForm({
+        name: "",
+        slug: "",
+        managerId: "",
+        description: "",
+        timezone: "",
+      });
+      toast.success("Organization created successfully");
+      router.push("/admin/dashboard/organizations");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(
+          error.response?.data?.message ?? "Failed to create organization",
+        );
+      } else {
+        toast.error("Failed to create organization");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -61,6 +105,28 @@ export default function AddOrganizationPage() {
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="managerId">Manager</Label>
+          <div className="flex items-center gap-3">
+            <Input
+              id="managerId"
+              name="managerId"
+              value={form.managerId}
+              onChange={handleChange}
+              placeholder="Select manager"
+              disabled
+              aria-disabled="true"
+              className="cursor-not-allowed opacity-70"
+            />
+            <Button type="button" variant="outline" disabled>
+              Select manager
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Manager assignment will be implemented later.
+          </p>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="timezone">Timezone</Label>
           <Input
             id="timezone"
@@ -88,10 +154,13 @@ export default function AddOrganizationPage() {
             type="button"
             variant="outline"
             onClick={() => router.push("/admin/dashboard/organizations")}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit">Save organization</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save organization"}
+          </Button>
         </div>
       </form>
     </div>
