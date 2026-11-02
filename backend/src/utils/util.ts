@@ -34,3 +34,11 @@ export const normalizeObjectId = (
   }
   return new mongoose.Types.ObjectId(raw);
 };
+
+export const parseQueryInteger = (value: unknown, fallback: number) => {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    return fallback;
+  }
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : fallback;
+};

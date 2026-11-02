@@ -11,6 +11,11 @@ declare global {
         userStatus: UserStatus;
         [key: string]: any;
       };
+      query: {
+        skip?: string | string[];
+        limit?: string | string[];
+        [key: string]: any;
+      };
     }
   }
 }
