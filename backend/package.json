@@ -10,7 +10,9 @@
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "worker": "node dist/workers/worker.js",
-    "create-admin": "tsx src/script/create-admin.ts"
+    "create-admin": "tsx src/script/create-admin.ts",
+    "seed-demo": "tsx src/script/seed-demo.ts",
+    "seed-demo:reset": "tsx src/script/seed-demo.ts --reset"
   },
   "keywords": [],
   "author": "",
