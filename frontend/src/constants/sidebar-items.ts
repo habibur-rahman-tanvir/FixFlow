@@ -13,8 +13,6 @@ export type SidebarItem = {
   icon: LucideIcon;
 };
 
-// All are dummy.
-
 export const adminSidebarItems: SidebarItem[] = [
   {
     title: "Dashboard",
@@ -31,16 +29,6 @@ export const adminSidebarItems: SidebarItem[] = [
     url: "/admin/dashboard/users",
     icon: Users,
   },
-  // {
-  //   title: "Reports",
-  //   url: "/admin/reports",
-  //   icon: ChartNoAxesCombined,
-  // },
-  // {
-  //   title: "Settings",
-  //   url: "/admin/settings",
-  //   icon: Settings,
-  // },
 ];
 
 export const managerSidebarItems: SidebarItem[] = [

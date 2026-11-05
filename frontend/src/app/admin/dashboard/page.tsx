@@ -1,14 +1,15 @@
-const organizations = Array.from({ length: 100 }, (_, index) => ({
-  id: index + 1,
-  name: `Organization ${index + 1}`,
-  location: ["New York", "Chicago", "Austin", "Seattle", "Miami"][index % 5],
-  status: index % 3 === 0 ? "Active" : index % 3 === 1 ? "Review" : "Pending",
-}));
+// const organizations = Array.from({ length: 100 }, (_, index) => ({
+//   id: index + 1,
+//   name: `Organization ${index + 1}`,
+//   location: ["New York", "Chicago", "Austin", "Seattle", "Miami"][index % 5],
+//   status: index % 3 === 0 ? "Active" : index % 3 === 1 ? "Review" : "Pending",
+// }));
 
 export default function AdminDashboardPage() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
+      <h1>Dashboard</h1>
+      {/* <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-muted-foreground">Overview</p>
           <h1 className="text-2xl font-bold tracking-tight">Organizations</h1>
@@ -49,7 +50,7 @@ export default function AdminDashboardPage() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
