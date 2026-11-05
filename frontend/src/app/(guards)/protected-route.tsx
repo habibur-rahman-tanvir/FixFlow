@@ -9,25 +9,31 @@ import { ReactNode, useEffect } from "react";
 export function ProtectedRoute({
   children,
   role,
+  reverse = false,
 }: {
   children: ReactNode;
   role?: Role;
+  reverse?: boolean;
 }) {
   const { user, isAuthLoading } = useAuth();
   const router = useRouter();
 
+  const hasAccess = !!user && (role === undefined || user.role === role);
+
+  const isAllowed = reverse ? !hasAccess : hasAccess;
+
   useEffect(() => {
-    if (!isAuthLoading && !user) {
-      router.push("/signup");
+    if (isAuthLoading || isAllowed) return;
+
+    if (!user) {
+      router.replace("/signup");
       return;
     }
 
-    if (!isAuthLoading && user && role !== undefined && user.role !== role) {
-      router.push(`/profile`);
-    }
-  }, [isAuthLoading, user, router, role]);
+    router.replace("/profile");
+  }, [isAuthLoading, isAllowed, user, router]);
 
-  if (isAuthLoading || !user) {
+  if (isAuthLoading || !isAllowed) {
     return <SplashScreen />;
   }
 

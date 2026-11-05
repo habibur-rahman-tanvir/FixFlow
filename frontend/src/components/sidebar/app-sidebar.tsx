@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -9,8 +11,11 @@ import {
 import { SidebarItem } from "@/constants/sidebar-items";
 import Link from "next/link";
 import { FixFlowLogo } from "@/components/fixflow-logo";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar({ sidebarItems }: { sidebarItems: SidebarItem[] }) {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-border/70 px-3 py-3">

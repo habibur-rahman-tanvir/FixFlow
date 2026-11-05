@@ -1,3 +1,5 @@
+"use client";
+
 import { ProtectedRoute } from "@/app/(guards)/protected-route";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
