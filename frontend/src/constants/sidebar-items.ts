@@ -16,7 +16,7 @@ export type SidebarItem = {
 export const adminSidebarItems: SidebarItem[] = [
   {
     title: "Dashboard",
-    url: "/admin/dashboard/",
+    url: "/admin/dashboard",
     icon: Home,
   },
   {
