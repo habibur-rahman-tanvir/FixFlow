@@ -1,8 +1,8 @@
 import { ProtectedRoute } from "@/app/(guards)/protected-route";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+// import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { technicianSidebarItems } from "@/constants/sidebar-items";
+// import { technicianSidebarItems } from "@/constants/sidebar-items";
 import type { ReactNode } from "react";
 
 export default function TechnicianDashboardLayout({
@@ -13,7 +13,7 @@ export default function TechnicianDashboardLayout({
   return (
     <ProtectedRoute>
       <SidebarProvider>
-        <AppSidebar sidebarItems={technicianSidebarItems} />
+        {/* <AppSidebar sidebarItems={technicianSidebarItems} /> */}
         <div className="flex min-h-svh w-full flex-1 flex-col">
           <DashboardNavbar
             title="Technician dashboard"

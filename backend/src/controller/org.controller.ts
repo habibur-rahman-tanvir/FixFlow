@@ -1,4 +1,5 @@
 import type { RequestHandler } from "express";
+import mongoose from "mongoose";
 import { createOrganization } from "../services/org.service.js";
 import { AppError } from "../error/App.error.js";
 import { OrganizationModel } from "../model/organization.model.js";
@@ -75,6 +76,43 @@ export const createOrgController: RequestHandler = async (req, res) => {
   return res.status(201).json({
     status: "success",
     message: "Organization created successfully",
+    data: organization,
+  });
+};
+
+export const getOrgByIdOrSlug: RequestHandler = async (req, res) => {
+  const rawOrgIdOrSlug = req.params.orgIdOrSlug;
+  const orgIdOrSlug = Array.isArray(rawOrgIdOrSlug)
+    ? rawOrgIdOrSlug[0]
+    : rawOrgIdOrSlug;
+
+  if (typeof orgIdOrSlug !== "string" || !orgIdOrSlug.trim()) {
+    throw new AppError("Organization identifier is required", 400);
+  }
+
+  const normalizedOrgIdOrSlug = orgIdOrSlug.trim();
+  const query = mongoose.Types.ObjectId.isValid(normalizedOrgIdOrSlug)
+    ? { _id: normalizedOrgIdOrSlug }
+    : { slug: normalizedOrgIdOrSlug.toLowerCase() };
+
+  const organization = await OrganizationModel.findOne(query)
+    .populate({
+      path: "manager",
+      select: "-password",
+    })
+    .populate({
+      path: "createdBy",
+      select: "-password",
+    })
+    .lean();
+
+  if (!organization) {
+    throw new AppError("Organization not found", 404);
+  }
+
+  return res.status(200).json({
+    status: "success",
+    message: "Organization fetched successfully",
     data: organization,
   });
 };
