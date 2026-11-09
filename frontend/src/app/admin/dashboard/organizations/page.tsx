@@ -238,9 +238,12 @@ export default function OrganizationsPage() {
                     <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground md:hidden">
                       Name
                     </div>
-                    <p className="truncate font-medium text-foreground">
+                    <Link
+                      href={`/organization/${org.slug || org._id}`}
+                      className="block truncate font-medium text-foreground transition-colors hover:text-primary"
+                    >
                       {org.name}
-                    </p>
+                    </Link>
                     {org.description ? (
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                         {org.description}
@@ -252,9 +255,12 @@ export default function OrganizationsPage() {
                     <div className="mb-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground md:hidden">
                       Slug
                     </div>
-                    <span className="truncate text-muted-foreground">
+                    <Link
+                      href={`/organization/${org.slug || org._id}`}
+                      className="block truncate text-muted-foreground transition-colors hover:text-foreground"
+                    >
                       {org.slug}
-                    </span>
+                    </Link>
                   </div>
 
                   <div className="min-w-0">
