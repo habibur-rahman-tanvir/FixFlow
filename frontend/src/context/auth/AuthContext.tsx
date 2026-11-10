@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { initialUserState, userReducer } from "./userReducer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+let hasInitializedAuth = false;
 
 interface GoogleAuthResult {
   code?: string;
@@ -64,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isVerifingOtp, setIsVerifingOtp] = useState<boolean>(false);
 
+  const router = useRouter();
+
   const [userState, dispatchUser] = useReducer(userReducer, initialUserState);
 
   const [actionType, setActionType] = useState<"signup" | "login">("signup");
@@ -73,8 +76,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: "",
   });
   const [fieldsError, setFieldsError] = useState<any>({});
-
-  const router = useRouter();
 
   const setUserData = (user: User | null) => {
     if (!user) {
@@ -212,45 +213,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    let active = true;
-    async function initializeAuth() {
-      if (!active) return;
-      console.log("Initial auth.....");
-      try {
-        const res = await fetch(`${API_URL}/api/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-          cache: "no-cache",
-        });
-        const data = await res.json();
-        if (data.accessToken) {
-          localStorage.setItem("accessToken", data.accessToken);
-          const res2 = await fetch(`${API_URL}/api/profile/basic`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${data.accessToken}`,
-            },
+    if (hasInitializedAuth) return;
+    hasInitializedAuth = true;
+
+    queueMicrotask(() => {
+      void (async () => {
+        console.log("Initial auth.....");
+        try {
+          const res = await fetch(`${API_URL}/api/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
             cache: "no-cache",
           });
-          const data2 = await res2.json();
-          setUserData(data2);
-        } else {
-          localStorage.removeItem("accessToken");
+          const data = await res.json();
+          if (data.accessToken) {
+            localStorage.setItem("accessToken", data.accessToken);
+            const res2 = await fetch(`${API_URL}/api/profile/basic`, {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${data.accessToken}`,
+              },
+              cache: "no-cache",
+            });
+            const data2 = await res2.json();
+            setUserData(data2);
+          } else {
+            localStorage.removeItem("accessToken");
+            setUserData(null);
+          }
+        } catch {
           setUserData(null);
-        }
-      } catch {
-        if (!active) return;
-        setUserData(null);
-      } finally {
-        if (active) {
+        } finally {
           setLoading(false);
         }
-      }
-    }
-    initializeAuth();
-    return () => {
-      active = false;
-    };
+      })();
+    });
   }, []);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Plus } from "lucide-react";
@@ -31,6 +31,7 @@ export default function OrganizationsPage() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [total, setTotal] = useState(0);
+  const requestedLoadKeyRef = useRef("");
 
   const fetchOrganizations = useCallback(
     async ({
@@ -44,6 +45,9 @@ export default function OrganizationsPage() {
       nextSortBy?: SortField;
       nextOrder?: SortOrder;
     } = {}) => {
+      if (isLoadingMore && !reset) return;
+      if (isLoading && !reset) return;
+
       try {
         if (reset) {
           setIsLoading(true);
@@ -80,29 +84,24 @@ export default function OrganizationsPage() {
         setIsLoadingMore(false);
       }
     },
-    [order, sortBy],
+    [isLoading, isLoadingMore, order, sortBy],
   );
 
   useEffect(() => {
-    let isActive = true;
+    const loadKey = `${sortBy}:${order}`;
+    if (requestedLoadKeyRef.current === loadKey) return;
+    requestedLoadKeyRef.current = loadKey;
 
-    const loadInitialOrganizations = async () => {
-      if (!isActive) {
-        return;
-      }
-
-      await fetchOrganizations({
+    const timeoutId = window.setTimeout(() => {
+      void fetchOrganizations({
         reset: true,
         skip: 0,
         nextSortBy: sortBy,
         nextOrder: order,
       });
-    };
+    }, 0);
 
-    void loadInitialOrganizations();
-    return () => {
-      isActive = false;
-    };
+    return () => window.clearTimeout(timeoutId);
   }, [fetchOrganizations, order, sortBy]);
 
   const handleSort = (field: SortField) => {
@@ -113,12 +112,6 @@ export default function OrganizationsPage() {
     setTotal(0);
     setSortBy(field);
     setOrder(nextOrder);
-    void fetchOrganizations({
-      reset: true,
-      skip: 0,
-      nextSortBy: field,
-      nextOrder,
-    });
   };
 
   const renderSortIcon = (field: SortField) => {
@@ -189,19 +182,20 @@ export default function OrganizationsPage() {
 
         <div
           id="organizations-scroll-container"
-          className="max-h-[70vh] overflow-y-auto"
+          // className="max-h-[70vh] overflow-y-auto"
+          className="h-[70vh] overflow-y-auto"
         >
           <InfiniteScroll
             dataLength={organizations.length}
             next={() => {
-              if (!isLoadingMore && hasMore) {
-                void fetchOrganizations({
-                  reset: false,
-                  skip: organizations.length,
-                  nextSortBy: sortBy,
-                  nextOrder: order,
-                });
-              }
+              if (isLoading || isLoadingMore || !hasMore) return;
+
+              void fetchOrganizations({
+                reset: false,
+                skip: organizations.length,
+                nextSortBy: sortBy,
+                nextOrder: order,
+              });
             }}
             hasMore={hasMore}
             loader={
