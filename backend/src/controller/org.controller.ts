@@ -116,3 +116,11 @@ export const getOrgByIdOrSlug: RequestHandler = async (req, res) => {
     data: organization,
   });
 };
+
+export const assignManager: RequestHandler = async (req, res) => {
+  res.send("Assigning manager...");
+};
+
+export const removeManager: RequestHandler = async (req, res) => {
+  res.send("Removing manager...");
+};
