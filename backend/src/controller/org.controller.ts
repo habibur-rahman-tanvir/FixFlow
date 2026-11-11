@@ -1,6 +1,10 @@
 import type { RequestHandler } from "express";
 import mongoose from "mongoose";
-import { createOrganization } from "../services/org.service.js";
+import {
+  assignManagerToOrganization,
+  createOrganization,
+  removeManagerFromOrganization,
+} from "../services/org.service.js";
 import { AppError } from "../error/App.error.js";
 import { OrganizationModel } from "../model/organization.model.js";
 import { parseQueryInteger } from "../utils/util.js";
@@ -117,10 +121,63 @@ export const getOrgByIdOrSlug: RequestHandler = async (req, res) => {
   });
 };
 
-export const assignManager: RequestHandler = async (req, res) => {
-  res.send("Assigning manager...");
+export const assignManager: RequestHandler = async (req, res, next) => {
+  try {
+    const rawOrgId = req.params.orgId;
+    const organizationId: string = Array.isArray(rawOrgId)
+      ? (rawOrgId[0] ?? "")
+      : (rawOrgId ?? "");
+    const rawManagerId = req.body?.managerId;
+    const managerId: string = Array.isArray(rawManagerId)
+      ? (rawManagerId[0] ?? "")
+      : typeof rawManagerId === "string"
+        ? rawManagerId
+        : "";
+
+    if (!organizationId) {
+      throw new AppError("Organization id is required", 400);
+    }
+
+    if (!managerId) {
+      throw new AppError("Manager id is required", 400);
+    }
+
+    const organization = await assignManagerToOrganization({
+      organizationId,
+      managerId,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Manager assigned successfully",
+      data: organization,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
-export const removeManager: RequestHandler = async (req, res) => {
-  res.send("Removing manager...");
+export const removeManager: RequestHandler = async (req, res, next) => {
+  try {
+    const rawOrgId = req.params.orgId;
+    const organizationId: string = Array.isArray(rawOrgId)
+      ? (rawOrgId[0] ?? "")
+      : (rawOrgId ?? "");
+
+    if (!organizationId) {
+      throw new AppError("Organization id is required", 400);
+    }
+
+    const organization = await removeManagerFromOrganization({
+      organizationId,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Manager removed successfully",
+      data: organization,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };

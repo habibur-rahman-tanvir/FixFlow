@@ -14,6 +14,175 @@ export type CreateOrganizationInput = {
   timezone?: string | undefined;
 };
 
+export type AssignManagerInput = {
+  organizationId: string | mongoose.Types.ObjectId;
+  managerId: string | mongoose.Types.ObjectId;
+};
+
+export type RemoveManagerInput = {
+  organizationId: string | mongoose.Types.ObjectId;
+};
+
+export const assignManagerToOrganization = async ({
+  organizationId,
+  managerId,
+}: AssignManagerInput) => {
+  const _organizationId = normalizeObjectId(organizationId);
+  const _managerId = normalizeObjectId(managerId);
+
+  if (!_organizationId) {
+    throw new AppError("Organization id is required", 400);
+  }
+
+  if (!_managerId) {
+    throw new AppError("Manager id is required", 400);
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let updatedOrganization;
+
+    await session.withTransaction(async () => {
+      const organization = await OrganizationModel.findById(_organizationId)
+        .session(session)
+        .lean();
+
+      if (!organization) {
+        throw new AppError("Organization not found", 404);
+      }
+
+      const previousManagerId = organization.manager?.toString();
+
+      if (previousManagerId && previousManagerId !== _managerId.toString()) {
+        throw new AppError(
+          "Remove the current manager before assigning a new one",
+          409,
+        );
+      }
+
+      if (previousManagerId === _managerId.toString()) {
+        updatedOrganization = await OrganizationModel.findById(_organizationId)
+          .populate({ path: "manager", select: "-password" })
+          .populate({ path: "createdBy", select: "-password" })
+          .lean();
+        return;
+      }
+
+      const manager = await UserModel.findById(_managerId)
+        .session(session)
+        .lean();
+
+      if (!manager) {
+        throw new AppError("Manager user not found", 404);
+      }
+
+      // const allowedRoles = ["visitor", "member", "manager"] as const;
+      const allowedRoles = ["visitor", "manager"] as const;
+      if (
+        !allowedRoles.includes(manager.role as (typeof allowedRoles)[number])
+      ) {
+        throw new AppError(
+          // "Only visitor, member, or manager roles can be assigned to an organization",
+          "Only visitor or manager roles can be assigned to an organization",
+          400,
+        );
+      }
+
+      const result = await OrganizationModel.findByIdAndUpdate(
+        _organizationId,
+        { manager: _managerId },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      )
+        .populate({ path: "manager", select: "-password" })
+        .populate({ path: "createdBy", select: "-password" });
+
+      if (!result) {
+        throw new AppError("Organization could not be updated", 500);
+      }
+
+      await UserModel.updateOne(
+        { _id: _managerId },
+        {
+          $addToSet: { managerOf: _organizationId },
+          $set: { role: "manager" },
+        },
+        { session },
+      );
+
+      updatedOrganization = result.toObject ? result.toObject() : result;
+    });
+
+    return updatedOrganization;
+  } finally {
+    await session.endSession();
+  }
+};
+
+export const removeManagerFromOrganization = async ({
+  organizationId,
+}: RemoveManagerInput) => {
+  const _organizationId = normalizeObjectId(organizationId);
+
+  if (!_organizationId) {
+    throw new AppError("Organization id is required", 400);
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let updatedOrganization;
+
+    await session.withTransaction(async () => {
+      const organization = await OrganizationModel.findById(_organizationId)
+        .session(session)
+        .lean();
+
+      if (!organization) {
+        throw new AppError("Organization not found", 404);
+      }
+
+      if (!organization.manager) {
+        throw new AppError("No manager assigned to this organization", 400);
+      }
+
+      const previousManagerId = organization.manager.toString();
+
+      const result = await OrganizationModel.findByIdAndUpdate(
+        _organizationId,
+        { $unset: { manager: "" } },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      )
+        .populate({ path: "manager", select: "-password" })
+        .populate({ path: "createdBy", select: "-password" });
+
+      if (!result) {
+        throw new AppError("Organization manager could not be removed", 500);
+      }
+
+      await UserModel.updateOne(
+        { _id: previousManagerId },
+        { $pull: { managerOf: _organizationId } },
+        { session },
+      );
+
+      updatedOrganization = result.toObject ? result.toObject() : result;
+    });
+
+    return updatedOrganization;
+  } finally {
+    await session.endSession();
+  }
+};
+
 export const createOrganization = async (input: CreateOrganizationInput) => {
   const _name = normalizeText(input.name);
   const _slug = normalizeText(input.slug);
