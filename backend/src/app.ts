@@ -13,7 +13,9 @@ app.set("trust proxy", 1);
 
 app.use(corsMiddleware);
 
-app.use(morgan("dev", { skip: () => isProduction() }));
+// app.use(morgan("dev", { skip: () => isProduction() }));
+app.use(morgan("dev"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
