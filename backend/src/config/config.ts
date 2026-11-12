@@ -6,6 +6,7 @@ export const OTP_EXPIRE_TIME_MINUTE = 2;
 export const WHITE_LIST = [
   "https://localhost:3000",
   "https://new-fix-flow.vercel.app",
+  "https://fix-flow-ptrm2cmsm-habibur-rahman-tanvirs-projects.vercel.app",
   undefined,
 ];
 
