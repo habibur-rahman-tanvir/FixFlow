@@ -233,7 +233,8 @@ export default function OrganizationsPage() {
                       Name
                     </div>
                     <Link
-                      href={`/organization/${org.slug || org._id}`}
+                      // href={`/organizations/${org.slug || org._id}`}
+                      href={`/admin/dashboard/organizations/${org.slug || org._id}`}
                       className="block truncate font-medium text-foreground transition-colors hover:text-primary"
                     >
                       {org.name}

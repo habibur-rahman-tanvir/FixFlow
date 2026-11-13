@@ -39,6 +39,22 @@ const adminSidebarItems: AdminSidebarItem[] = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+
+  const activeItemUrl = adminSidebarItems.reduce<string | null>(
+    (currentActiveUrl, item) => {
+      const matches =
+        pathname === item.url || pathname.startsWith(`${item.url}/`);
+
+      if (!matches) return currentActiveUrl;
+      if (!currentActiveUrl || item.url.length > currentActiveUrl.length) {
+        return item.url;
+      }
+
+      return currentActiveUrl;
+    },
+    null,
+  );
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-border/70 px-3 py-3">
@@ -47,17 +63,19 @@ export function AdminSidebar() {
       <SidebarContent>
         <SidebarMenu>
           {adminSidebarItems.map((item) => {
-            const isActive = pathname === item.url;
+            const isActive = item.url === activeItemUrl;
+
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   tooltip={item.title}
                   render={<Link href={item.url} />}
                   // isActive={isActive}
-                  className={`
-                    mt-1
-                    ${isActive && "bg-gray-300"} 
-                    ${!isActive ? "hover:bg-gray-200" : "hover:bg-gray-300"}`}
+                  className={
+                    isActive
+                      ? "mt-1 bg-gray-300 hover:bg-gray-300"
+                      : "mt-1 hover:bg-gray-200"
+                  }
                 >
                   <item.icon />
                   <span>{item.title}</span>
