@@ -1,35 +1,10 @@
-import {
-  Home,
-  Users,
-  ClipboardList,
-  Wrench,
-  LucideIcon,
-  BuildingComplexPlus,
-} from "lucide-react";
+import { Home, ClipboardList, Wrench, LucideIcon } from "lucide-react";
 
 export type SidebarItem = {
   title: string;
   url: string;
   icon: LucideIcon;
 };
-
-export const adminSidebarItems: SidebarItem[] = [
-  {
-    title: "Dashboard",
-    url: "/admin/dashboard",
-    icon: Home,
-  },
-  {
-    title: "Organizations",
-    url: "/admin/dashboard/organizations",
-    icon: BuildingComplexPlus,
-  },
-  {
-    title: "Users",
-    url: "/admin/dashboard/users",
-    icon: Users,
-  },
-];
 
 export const managerSidebarItems: SidebarItem[] = [
   {
