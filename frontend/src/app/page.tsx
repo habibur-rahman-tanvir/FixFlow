@@ -1,5 +1,6 @@
 import { ModeToggle } from "@/components/next-theme/mode-toggle";
 import { Button } from "@/components/ui/button";
+// import { UserPicker } from "@/shared/picker/user-picker";
 import Link from "next/link";
 
 export default function Home() {
@@ -31,6 +32,12 @@ export default function Home() {
         </Link>
         <Link href={"/technician/dashboard"}>
           <Button>Technician Dashboard</Button>
+        </Link>
+      </div>
+
+      <div>
+        <Link href={"/temp"}>
+          <Button>Temp</Button>
         </Link>
       </div>
     </div>
