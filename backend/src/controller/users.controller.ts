@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 import { UserModel } from "../model/user.model.js";
-import { parseQueryInteger } from "../utils/util.js";
+import { escapeRegExp, parseQueryInteger } from "../utils/util.js";
 
 const SORT_FIELDS = ["name", "email", "createdAt", "updatedAt"] as const;
 const ORDER_FIELDS = ["asc", "desc"] as const;
@@ -62,7 +62,7 @@ export const getUsers: RequestHandler = async (req, res) => {
 
   if (search) {
     filter.name = {
-      $regex: search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      $regex: escapeRegExp(search),
       $options: "i",
     };
   }

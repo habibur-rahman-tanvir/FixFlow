@@ -42,3 +42,7 @@ export const parseQueryInteger = (value: unknown, fallback: number) => {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) ? parsed : fallback;
 };
+
+export const escapeRegExp = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
