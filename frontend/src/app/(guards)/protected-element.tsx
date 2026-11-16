@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/auth/AuthContext";
-import type { Role } from "@/dto/user/user.dto";
+import type { Role } from "@/types/user/user.dto";
 import type { ReactNode } from "react";
 
 export function ProtectedElement({

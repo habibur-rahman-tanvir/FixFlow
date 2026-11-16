@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/dto/user/user.dto";
+import { User } from "@/types/user/user.dto";
 import { api } from "@/lib/axios/client";
 import { useGoogleLogin } from "@react-oauth/google";
 import { AxiosError } from "axios";

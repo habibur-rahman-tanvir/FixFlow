@@ -2,7 +2,7 @@
 
 import { SplashScreen } from "@/components/splash-screen.ts/splash-screen";
 import { useAuth } from "@/context/auth/AuthContext";
-import { Role } from "@/dto/user/user.dto";
+import { Role } from "@/types/user/user.dto";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 

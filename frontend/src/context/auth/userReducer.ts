@@ -1,4 +1,4 @@
-import { User } from "@/dto/user/user.dto";
+import { User } from "@/types/user/user.dto";
 
 type UserAction =
   | { type: "SET_USER"; payload: User }
