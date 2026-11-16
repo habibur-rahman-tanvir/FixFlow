@@ -233,8 +233,7 @@ export default function OrganizationsPage() {
                       Name
                     </div>
                     <Link
-                      // href={`/organizations/${org.slug || org._id}`}
-                      href={`/admin/dashboard/organizations/${org.slug || org._id}`}
+                      href={`/admin/dashboard/organizations/${org._id || org.slug}`}
                       className="block truncate font-medium text-foreground transition-colors hover:text-primary"
                     >
                       {org.name}
@@ -251,7 +250,7 @@ export default function OrganizationsPage() {
                       Slug
                     </div>
                     <Link
-                      href={`/organization/${org.slug || org._id}`}
+                      href={`/admin/dashboard/organizations/${org.slug || org._id}`}
                       className="block truncate text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {org.slug}
