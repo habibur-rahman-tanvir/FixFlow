@@ -27,6 +27,7 @@ import { api } from "@/lib/axios/client";
 import { UserPicker } from "@/shared/user-picker/UserPicker";
 import type { User } from "@/types/user/user.dto";
 import Image from "next/image";
+import { ConfirmAlertDialog } from "../confirm-alert-dialog/ConfirmAlertDialog";
 
 type OrganizationDetail = {
   _id: string;
@@ -418,16 +419,29 @@ export function OrganizationDetail() {
 
                       <ProtectedElement role="admin">
                         {hasManager ? (
-                          <Button
-                            className="w-full justify-center"
-                            variant="destructive"
-                            onClick={handleManagerAction}
-                            disabled={isManagerActionLoading}
-                          >
-                            {isManagerActionLoading
-                              ? "Removing..."
-                              : "Remove manager"}
-                          </Button>
+                          // <Button
+                          //   className="w-full justify-center"
+                          //   variant="destructive"
+                          //   onClick={handleManagerAction}
+                          //   disabled={isManagerActionLoading}
+                          // >
+                          //   {isManagerActionLoading
+                          //     ? "Removing..."
+                          //     : "Remove manager"}
+                          // </Button>
+                          <ConfirmAlertDialog
+                            render={
+                              <Button
+                                className="w-full justify-center"
+                                variant="destructive"
+                              >
+                                {isManagerActionLoading
+                                  ? "Removing..."
+                                  : "Remove manager"}
+                              </Button>
+                            }
+                            onConfirm={handleManagerAction}
+                          />
                         ) : (
                           <UserPicker
                             render={
