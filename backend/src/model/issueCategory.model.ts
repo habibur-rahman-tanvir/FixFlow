@@ -5,21 +5,35 @@ const issueCategorySchema = new Schema(
     organization: {
       type: Schema.Types.ObjectId,
       ref: "Organization",
-      required: true,
+      required: [true, "Organization is required"],
+      index: true,
+    },
+
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Issue category creator is required"],
+      index: true,
+      immutable: true,
     },
 
     name: {
       type: String,
-      required: true,
+      required: [true, "Issue category name is required"],
+      trim: true,
+      minlength: [2, "Issue category name must be at least 2 characters"],
     },
 
     slug: {
       type: String,
-      required: true,
+      required: [true, "Issue category slug is required"],
+      trim: true,
+      lowercase: true,
     },
 
     description: {
       type: String,
+      trim: true,
     },
 
     isActive: {
@@ -28,6 +42,7 @@ const issueCategorySchema = new Schema(
     },
 
     priority: {
+      type: String,
       enum: ["LOW", "MEDIUM", "HIGH", "URGENT"],
       default: "MEDIUM",
     },
@@ -38,6 +53,9 @@ const issueCategorySchema = new Schema(
   },
 );
 
-const IssueCategory = mongoose.model("IssueCategory", issueCategorySchema);
+issueCategorySchema.index({ organization: 1, slug: 1 }, { unique: true });
+issueCategorySchema.index({ organization: 1, name: 1 }, { unique: true });
 
-export { IssueCategory };
+const IssueCategoryModel = mongoose.model("IssueCategory", issueCategorySchema);
+
+export { IssueCategoryModel };

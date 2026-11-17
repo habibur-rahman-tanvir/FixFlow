@@ -12,7 +12,11 @@ import verifyAccess from "../middleware/verifyAccess.middleware.js";
 
 const orgRouter: Router = express.Router();
 
-orgRouter.post("/:orgId/issue/category", verifyAccess(), createIssueCategory);
+orgRouter.post(
+  "/:orgId/issue/category",
+  verifyAccess(["admin", "manager"]),
+  createIssueCategory,
+);
 orgRouter.get("/:orgId/issue/category", verifyAccess(), getIssueCategories);
 
 orgRouter.get("/:orgIdOrSlug", verifyAccess(), getOrgByIdOrSlug);

@@ -13,4 +13,7 @@ export type IssueCategory = {
   description?: string;
   isActive: boolean;
   priority: IssuePriority;
+
+  createAt: string;
+  updatedAt: string;
 };

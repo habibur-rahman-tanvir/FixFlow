@@ -5,6 +5,10 @@ import {
   createOrganization,
   removeManagerFromOrganization,
 } from "../services/org.service.js";
+import {
+  createIssueCategoryForOrganization,
+  getIssueCategoriesForOrganization,
+} from "../services/issueCategory.service.js";
 import { AppError } from "../error/App.error.js";
 import { OrganizationModel } from "../model/organization.model.js";
 import { parseQueryInteger } from "../utils/util.js";
@@ -182,23 +186,58 @@ export const removeManager: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const createIssueCategory: RequestHandler = async (req, res) => {
-  const rawOrgId = req.params.orgId;
-  const organizationId: string = Array.isArray(rawOrgId)
-    ? (rawOrgId[0] ?? "")
-    : (rawOrgId ?? "");
+export const createIssueCategory: RequestHandler = async (req, res, next) => {
+  try {
+    const rawOrgId = req.params.orgId;
+    const organizationId: string = Array.isArray(rawOrgId)
+      ? (rawOrgId[0] ?? "")
+      : (rawOrgId ?? "");
 
-  res.json({
-    message: "Creatng issue category...",
-    orgId: organizationId,
-  });
+    const createdBy = req.user?._id;
+
+    if (!createdBy) {
+      throw new AppError("Authentication required", 401);
+    }
+
+    const { name, description, priority, isActive } = req.body ?? {};
+
+    const issueCategory = await createIssueCategoryForOrganization({
+      organizationId,
+      name,
+      description,
+      priority,
+      isActive,
+      createdBy,
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Issue category created successfully",
+      data: issueCategory,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
-export const getIssueCategories: RequestHandler = async (req, res) => {
-  const rawOrgId = req.params.orgId;
-  const organizationId: string = Array.isArray(rawOrgId)
-    ? (rawOrgId[0] ?? "")
-    : (rawOrgId ?? "");
+export const getIssueCategories: RequestHandler = async (req, res, next) => {
+  try {
+    const rawOrgId = req.params.orgId;
+    const organizationId: string = Array.isArray(rawOrgId)
+      ? (rawOrgId[0] ?? "")
+      : (rawOrgId ?? "");
 
-  res.json({ message: "All issue here...", orgId: organizationId });
+    const categories = await getIssueCategoriesForOrganization({
+      organizationId,
+      includeInactive: true,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Issue categories fetched successfully",
+      data: categories,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
