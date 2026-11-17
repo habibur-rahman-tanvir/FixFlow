@@ -13,6 +13,7 @@ import {
   UserRound,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { ProtectedElement } from "@/app/(guards)/protected-element";
 import { ProtectedRoute } from "@/app/(guards)/protected-route";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/lib/axios/client";
+import { UserPicker } from "@/shared/user-picker/UserPicker";
+import type { User } from "@/types/user/user.dto";
 import Image from "next/image";
 
 type OrganizationDetail = {
@@ -85,6 +88,68 @@ export function OrganizationDetail() {
     null,
   );
   const [isLoading, setIsLoading] = useState(() => Boolean(orgIdOrSlug));
+  const [isManagerActionLoading, setIsManagerActionLoading] = useState(false);
+  const [selectedManager, setSelectedManager] = useState<User | null>(null);
+
+  const hasManager = Boolean(
+    organization?.manager?._id ||
+    organization?.manager?.name ||
+    organization?.manager?.email,
+  );
+
+  const handleAssignManager = async (user: User | null) => {
+    if (!organization?._id || !user) return;
+
+    try {
+      setIsManagerActionLoading(true);
+      setSelectedManager(user);
+
+      const response = await api.post(
+        `/api/organizations/${organization._id}/manager`,
+        {
+          managerId: user._id,
+        },
+      );
+
+      const assignedManager = response.data?.data?.manager ?? user;
+      setOrganization((current) =>
+        current ? { ...current, manager: assignedManager } : current,
+      );
+      toast.success("Manager assigned successfully.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to assign manager.");
+    } finally {
+      setIsManagerActionLoading(false);
+    }
+  };
+
+  const handleManagerAction = async () => {
+    if (!organization?._id) return;
+
+    try {
+      setIsManagerActionLoading(true);
+
+      if (hasManager) {
+        await api.delete(`/api/organizations/${organization._id}/manager`);
+        setOrganization((current) =>
+          current ? { ...current, manager: null } : current,
+        );
+        setSelectedManager(null);
+        toast.success("Manager removed successfully.");
+        return;
+      }
+
+      toast("Use the assignment picker to assign a manager.");
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        hasManager ? "Unable to remove manager." : "Unable to assign manager.",
+      );
+    } finally {
+      setIsManagerActionLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!orgIdOrSlug) {
@@ -113,7 +178,7 @@ export function OrganizationDetail() {
   const logoUrl = organization?.logo?.url ?? organization?.banner?.url;
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute role="admin">
       <main className="min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-6">
           <div className="flex items-center justify-between gap-3">
@@ -350,6 +415,38 @@ export function OrganizationDetail() {
                           Back to list
                         </Button>
                       </Link>
+
+                      <ProtectedElement role="admin">
+                        {hasManager ? (
+                          <Button
+                            className="w-full justify-center"
+                            variant="destructive"
+                            onClick={handleManagerAction}
+                            disabled={isManagerActionLoading}
+                          >
+                            {isManagerActionLoading
+                              ? "Removing..."
+                              : "Remove manager"}
+                          </Button>
+                        ) : (
+                          <UserPicker
+                            value={selectedManager}
+                            onChange={handleAssignManager}
+                            role={["visitor", "manager"]}
+                            triggerLabel={
+                              selectedManager
+                                ? selectedManager.name
+                                : "Assign manager"
+                            }
+                            title="Assign organization manager"
+                            searchPlaceholder="Search visitor or manager..."
+                            emptyMessage="No visitor or manager found"
+                            confirmLabel="Assign manager"
+                            disabled={isManagerActionLoading}
+                          />
+                        )}
+                      </ProtectedElement>
+
                       <Button
                         className="w-full justify-center"
                         variant="secondary"
