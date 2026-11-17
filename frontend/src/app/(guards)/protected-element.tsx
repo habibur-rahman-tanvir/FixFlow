@@ -11,7 +11,7 @@ export function ProtectedElement({
   fallback = null,
 }: {
   children: ReactNode;
-  role?: Role;
+  role?: Role | Role[];
   reverse?: boolean;
   fallback?: ReactNode;
 }) {
@@ -21,7 +21,10 @@ export function ProtectedElement({
     return fallback;
   }
 
-  const hasAccess = !!user && (role === undefined || user.role === role);
+  const allowedRoles = role ? (Array.isArray(role) ? role : [role]) : undefined;
+
+  const hasAccess =
+    !!user && (!allowedRoles || allowedRoles.includes(user.role));
 
   const isAllowed = reverse ? !hasAccess : hasAccess;
 
