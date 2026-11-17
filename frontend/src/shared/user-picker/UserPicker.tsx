@@ -17,6 +17,8 @@ import { api } from "@/lib/axios/client";
 import { Role, User, USER_ROLES } from "@/types/user/user.dto";
 import { Loader2, Search, X } from "lucide-react";
 import {
+  JSXElementConstructor,
+  ReactElement,
   ReactNode,
   useCallback,
   useEffect,
@@ -29,6 +31,7 @@ import { Loading } from "./_components/Loading";
 import { InitialError } from "./_components/InitialError";
 import { NoUser } from "./_components/NoUser";
 import { UserDetails } from "./_components/UserDetails";
+import { cn } from "cn";
 
 type CommonProps = {
   role?: Role | Role[];
@@ -40,6 +43,7 @@ type CommonProps = {
   description?: string;
   triggerLabel?: string;
   confirmLabel?: string;
+  className?: string;
 
   searchPlaceholder?: string;
   emptyMessage?: string;
@@ -51,6 +55,7 @@ type CommonProps = {
   required?: boolean;
   disabled?: boolean;
 
+  render?: ReactElement<unknown, string | JSXElementConstructor<any>>;
   renderUser?: (user: User) => ReactNode;
 };
 
@@ -506,13 +511,18 @@ export function UserPicker(props: UserPickerProps) {
 
   // Render
   return (
-    // <Dialog>
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button variant={"outline"} disabled={props.disabled}>
-            {triggerText}
-          </Button>
+          props.render ?? (
+            <Button
+              variant={"outline"}
+              disabled={props.disabled}
+              className={cn(props.className)}
+            >
+              {triggerText}
+            </Button>
+          )
         }
       />
 

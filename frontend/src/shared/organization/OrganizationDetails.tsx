@@ -430,14 +430,17 @@ export function OrganizationDetail() {
                           </Button>
                         ) : (
                           <UserPicker
+                            render={
+                              <Button
+                                className="w-full bg-green-500/50"
+                                variant={"secondary"}
+                              >
+                                Assign manager
+                              </Button>
+                            }
                             value={selectedManager}
                             onChange={handleAssignManager}
                             role={["visitor", "manager"]}
-                            triggerLabel={
-                              selectedManager
-                                ? selectedManager.name
-                                : "Assign manager"
-                            }
                             title="Assign organization manager"
                             searchPlaceholder="Search visitor or manager..."
                             emptyMessage="No visitor or manager found"

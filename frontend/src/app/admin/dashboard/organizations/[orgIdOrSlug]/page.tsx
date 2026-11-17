@@ -1,4 +1,4 @@
-import { OrganizationDetail } from "@/shared/organization/organization-detail";
+import { OrganizationDetail } from "@/shared/organization/OrganizationDetails";
 
 export const instant = false;
 
