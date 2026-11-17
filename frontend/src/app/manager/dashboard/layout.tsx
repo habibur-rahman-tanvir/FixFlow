@@ -1,9 +1,8 @@
 import { ProtectedRoute } from "@/app/(guards)/protected-route";
-// import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { DashboardNavbar } from "@/components/dashboard-navbar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-// import { managerSidebarItems } from "@/constants/sidebar-items";
 import type { ReactNode } from "react";
+import { ManagerSidebar } from "./_components/manager-sidebar";
 
 export default function ManagerDashboardLayout({
   children,
@@ -13,7 +12,7 @@ export default function ManagerDashboardLayout({
   return (
     <ProtectedRoute>
       <SidebarProvider>
-        {/* <AppSidebar sidebarItems={managerSidebarItems} /> */}
+        <ManagerSidebar />
         <div className="flex min-h-svh w-full flex-1 flex-col">
           <DashboardNavbar
             title="Manager dashboard"

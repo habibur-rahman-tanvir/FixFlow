@@ -70,7 +70,6 @@ export function AdminSidebar() {
                 <SidebarMenuButton
                   tooltip={item.title}
                   render={<Link href={item.url} />}
-                  // isActive={isActive}
                   className={
                     isActive
                       ? "mt-1 bg-gray-300 hover:bg-gray-300"
