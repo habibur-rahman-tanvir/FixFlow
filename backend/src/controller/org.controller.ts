@@ -181,3 +181,24 @@ export const removeManager: RequestHandler = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const createIssueCategory: RequestHandler = async (req, res) => {
+  const rawOrgId = req.params.orgId;
+  const organizationId: string = Array.isArray(rawOrgId)
+    ? (rawOrgId[0] ?? "")
+    : (rawOrgId ?? "");
+
+  res.json({
+    message: "Creatng issue category...",
+    orgId: organizationId,
+  });
+};
+
+export const getIssueCategories: RequestHandler = async (req, res) => {
+  const rawOrgId = req.params.orgId;
+  const organizationId: string = Array.isArray(rawOrgId)
+    ? (rawOrgId[0] ?? "")
+    : (rawOrgId ?? "");
+
+  res.json({ message: "All issue here...", orgId: organizationId });
+};

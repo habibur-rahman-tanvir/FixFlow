@@ -1,7 +1,9 @@
 import express, { Router } from "express";
 import {
   assignManager,
+  createIssueCategory,
   createOrgController,
+  getIssueCategories,
   getOrgByIdOrSlug,
   getOrgController,
   removeManager,
@@ -9,6 +11,9 @@ import {
 import verifyAccess from "../middleware/verifyAccess.middleware.js";
 
 const orgRouter: Router = express.Router();
+
+orgRouter.post("/:orgId/issue/category", verifyAccess(), createIssueCategory);
+orgRouter.get("/:orgId/issue/category", verifyAccess(), getIssueCategories);
 
 orgRouter.get("/:orgIdOrSlug", verifyAccess(), getOrgByIdOrSlug);
 
