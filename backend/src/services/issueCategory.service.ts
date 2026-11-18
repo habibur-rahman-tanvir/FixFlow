@@ -4,6 +4,7 @@ import { IssueCategoryModel } from "../model/issueCategory.model.js";
 import { OrganizationModel } from "../model/organization.model.js";
 import { UserModel } from "../model/user.model.js";
 import { normalizeObjectId, normalizeText } from "../utils/util.js";
+import type { Role } from "../dto/user/user.dto.js";
 
 export const ISSUE_CATEGORY_PRIORITY = [
   "LOW",
@@ -14,13 +15,15 @@ export const ISSUE_CATEGORY_PRIORITY = [
 
 export type IssueCategoryPriority = (typeof ISSUE_CATEGORY_PRIORITY)[number];
 
-export type CreateIssueCategoryInput = {
+export type CreateIssueCategoryProps = {
   organizationId: string | mongoose.Types.ObjectId;
+  role: Role;
+  createdBy: string | mongoose.Types.ObjectId;
+
   name: string;
   description?: string;
   priority?: IssueCategoryPriority | string;
   isActive?: boolean;
-  createdBy: string | mongoose.Types.ObjectId;
 };
 
 export type GetIssueCategoriesInput = {
@@ -104,35 +107,19 @@ export const ensureOrganizationManagerAccess = async ({
     throw new AppError("Authentication required", 401);
   }
 
-  const [organization, user] = await Promise.all([
-    OrganizationModel.findById(_organizationId).lean(),
-    UserModel.findById(_userId).select("role").lean(),
+  const [organization] = await Promise.all([
+    OrganizationModel.findOne({ _id: _organizationId, manager: userId }).lean(),
   ]);
 
   if (!organization) {
     throw new AppError("Organization not found", 404);
   }
 
-  if (!user) {
-    throw new AppError("User not found", 404);
-  }
-
-  const isAdmin = user.role === "admin";
-  const isOrganizationManager =
-    organization.manager?.toString() === _userId.toString();
-
-  if (!isAdmin && !isOrganizationManager) {
-    throw new AppError(
-      "Only the organization manager or admin can manage issue categories",
-      403,
-    );
-  }
-
   return organization;
 };
 
 export const createIssueCategoryForOrganization = async (
-  input: CreateIssueCategoryInput,
+  input: CreateIssueCategoryProps,
 ) => {
   const _organizationId = normalizeObjectId(input.organizationId);
   const _createdBy = normalizeObjectId(input.createdBy);
@@ -145,10 +132,12 @@ export const createIssueCategoryForOrganization = async (
     throw new AppError("Authentication required", 401);
   }
 
-  await ensureOrganizationManagerAccess({
-    organizationId: _organizationId,
-    userId: _createdBy,
-  });
+  if (input.role !== "admin") {
+    await ensureOrganizationManagerAccess({
+      organizationId: _organizationId,
+      userId: _createdBy,
+    });
+  }
 
   const name = normalizeText(input.name);
   const description = normalizeText(input.description);

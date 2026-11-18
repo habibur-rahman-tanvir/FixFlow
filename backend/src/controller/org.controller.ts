@@ -193,21 +193,19 @@ export const createIssueCategory: RequestHandler = async (req, res, next) => {
       ? (rawOrgId[0] ?? "")
       : (rawOrgId ?? "");
 
-    const createdBy = req.user?._id;
-
-    if (!createdBy) {
-      throw new AppError("Authentication required", 401);
-    }
+    const createdBy = req.user?._id!;
+    const role = req.user?.role!;
 
     const { name, description, priority, isActive } = req.body ?? {};
 
     const issueCategory = await createIssueCategoryForOrganization({
       organizationId,
+      role,
+      createdBy,
       name,
       description,
       priority,
       isActive,
-      createdBy,
     });
 
     return res.status(201).json({

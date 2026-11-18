@@ -53,8 +53,8 @@ const issueCategorySchema = new Schema(
   },
 );
 
-issueCategorySchema.index({ organization: 1, slug: 1 }, { unique: true });
-issueCategorySchema.index({ organization: 1, name: 1 }, { unique: true });
+// issueCategorySchema.index({ organization: 1, slug: 1 }, { unique: true });
+// issueCategorySchema.index({ organization: 1, name: 1 }, { unique: true });
 
 const IssueCategoryModel = mongoose.model("IssueCategory", issueCategorySchema);
 
