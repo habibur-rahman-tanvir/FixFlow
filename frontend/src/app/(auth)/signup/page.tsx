@@ -39,7 +39,7 @@ export default function SignupPage() {
     const expireAt = Number(expireAtStr);
 
     if (expireAt && expireAt > Date.now()) {
-      router.push("/verify");
+      router.replace("/verify");
     }
   }, [router]);
 

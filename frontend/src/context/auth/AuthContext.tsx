@@ -182,8 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const user = res.data?.data;
         if (user) setUserData(user);
         toast.success(res.data.message);
-        document.cookie =
-          "otp=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";
+        sessionStorage.removeItem("otpExpireAt");
         router.replace("/profile");
       }
     } catch (err) {

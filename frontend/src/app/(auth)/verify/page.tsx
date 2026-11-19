@@ -33,6 +33,7 @@ export default function VerifyPage() {
     const expireAt = Number(expireAtStr);
 
     if (!expireAt || expireAt < Date.now()) {
+      sessionStorage.removeItem("otpExpireAt");
       router.replace("/signup");
     }
   }, [router]);
