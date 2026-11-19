@@ -106,7 +106,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password: formInput.password,
       });
 
-      // if (res.statusText === "OK") {
       if (actionType === "login") {
         const user = res.data?.data;
         if (user) setUserData(user);
@@ -114,10 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.replace("/profile");
       } else {
         toast.success(res.data.message);
-        console.log("Redirected to /verify");
+        sessionStorage.setItem("otpExpireAt", String(res.data.data.expireAt));
         router.push("/verify");
       }
-      // }
     } catch (error) {
       if (!(error instanceof AxiosError)) throw error;
       if (error.response?.status === 422) {

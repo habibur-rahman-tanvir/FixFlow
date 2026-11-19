@@ -29,24 +29,10 @@ export default function VerifyPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const getCookie = (name: string) => {
-      const match = document.cookie.match(
-        new RegExp(`(?:^|; )${name}=([^;]*)`),
-      );
-      if (!match) return null;
-      const raw = decodeURIComponent(match[1]);
-      return JSON.parse(raw);
-    };
-    const otp = getCookie("otp");
+    const expireAtStr = sessionStorage.getItem("otpExpireAt");
+    const expireAt = Number(expireAtStr);
 
-    console.log("OTP Cookie:", otp);
-    console.log("Cookies:", document.cookie);
-
-    console.log("Current URL:", window.location.origin);
-    console.log("Current Host:", window.location.host);
-
-    if (!otp || otp.expireAt < Date.now()) {
-      console.log("Redirecting to signup");
+    if (!expireAt || expireAt < Date.now()) {
       router.replace("/signup");
     }
   }, [router]);

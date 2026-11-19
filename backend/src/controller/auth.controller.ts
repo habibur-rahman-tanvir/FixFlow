@@ -52,18 +52,21 @@ export const signupController: RequestHandler = async (req, res, next) => {
       expiresAt,
     };
 
-    res.cookie("otp", JSON.stringify({ expireAt: expiresAt }), {
-      maxAge: 1000 * 60 * OTP_EXPIRE_TIME_MINUTE,
-      httpOnly: false,
-      sameSite: "none",
-      secure: true,
-    });
+    // res.cookie("otp", JSON.stringify({ expireAt: expiresAt }), {
+    //   maxAge: 1000 * 60 * OTP_EXPIRE_TIME_MINUTE,
+    //   httpOnly: false,
+    //   sameSite: "none",
+    //   secure: true,
+    // });
 
     await emailQueue.add("otpQueue", { name, email, otp });
 
     res.json({
       status: "success",
       message: "We sent an verification otp in your email.",
+      data: {
+        expireAt: expiresAt,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -201,11 +204,11 @@ export const logoutController: RequestHandler = async (req, res) => {
       secure: true,
     });
 
-    res.clearCookie("otp", {
-      httpOnly: false,
-      sameSite: "none",
-      secure: true,
-    });
+    // res.clearCookie("otp", {
+    //   httpOnly: false,
+    //   sameSite: "none",
+    //   secure: true,
+    // });
 
     return res.json({
       status: "success",
