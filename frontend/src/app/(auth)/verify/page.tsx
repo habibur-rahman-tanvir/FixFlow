@@ -38,7 +38,12 @@ export default function VerifyPage() {
       return JSON.parse(raw);
     };
     const otp = getCookie("otp");
+
+    console.log("OTP Cookie:", otp);
+
     if (!otp || otp.expireAt < Date.now()) {
+      console.log("Redirecting to signup");
+
       router.replace("/signup");
     }
   }, [router]);
