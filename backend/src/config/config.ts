@@ -1,5 +1,5 @@
 export const SESSION_EXPIRE_TIME_DAY = 29;
-export const JWT_EXPIRE_TIME_MINUTES = 5;
+export const JWT_EXPIRE_TIME_MINUTES = 1;
 
 export const OTP_EXPIRE_TIME_MINUTE = 2;
 
