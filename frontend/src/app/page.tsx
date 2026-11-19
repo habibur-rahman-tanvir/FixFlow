@@ -1,6 +1,6 @@
 import { ModeToggle } from "@/components/next-theme/mode-toggle";
 import { Button } from "@/components/ui/button";
-// import { UserPicker } from "@/shared/picker/user-picker";
+import { UserPicker } from "@/shared/user-picker/UserPicker";
 import Link from "next/link";
 
 export default function Home() {
@@ -39,6 +39,9 @@ export default function Home() {
         <Link href={"/temp"}>
           <Button>Temp</Button>
         </Link>
+      </div>
+      <div className="p-5">
+        <UserPicker />
       </div>
     </div>
   );
