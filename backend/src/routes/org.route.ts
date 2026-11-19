@@ -1,14 +1,16 @@
 import express, { Router } from "express";
 import {
   assignManager,
-  createIssueCategory,
   createOrgController,
-  getIssueCategories,
   getOrgByIdOrSlug,
   getOrgController,
   removeManager,
 } from "../controller/org.controller.js";
 import verifyAccess from "../middleware/verifyAccess.middleware.js";
+import {
+  createIssueCategory,
+  getIssueCategories,
+} from "../controller/issue.controller.js";
 
 const orgRouter: Router = express.Router();
 

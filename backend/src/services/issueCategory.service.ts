@@ -2,18 +2,12 @@ import mongoose from "mongoose";
 import { AppError } from "../error/App.error.js";
 import { IssueCategoryModel } from "../model/issueCategory.model.js";
 import { OrganizationModel } from "../model/organization.model.js";
-import { UserModel } from "../model/user.model.js";
-import { normalizeObjectId, normalizeText } from "../utils/util.js";
+import { normalizeObjectId, normalizeText, slugify } from "../utils/util.js";
 import type { Role } from "../dto/user/user.dto.js";
-
-export const ISSUE_CATEGORY_PRIORITY = [
-  "LOW",
-  "MEDIUM",
-  "HIGH",
-  "URGENT",
-] as const;
-
-export type IssueCategoryPriority = (typeof ISSUE_CATEGORY_PRIORITY)[number];
+import {
+  ISSUE_CATEGORY_PRIORITY,
+  type IssueCategoryPriority,
+} from "../dto/issue/issueCategory.dto.js";
 
 export type CreateIssueCategoryProps = {
   organizationId: string | mongoose.Types.ObjectId;
@@ -52,15 +46,6 @@ const normalizePriority = (
     `Invalid priority. Allowed values: ${ISSUE_CATEGORY_PRIORITY.join(", ")}`,
     400,
   );
-};
-
-const slugify = (value: string): string => {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
 };
 
 const createUniqueSlug = async (
@@ -118,7 +103,7 @@ export const ensureOrganizationManagerAccess = async ({
   return organization;
 };
 
-export const createIssueCategoryForOrganization = async (
+export const createIssueCategoryForOrg = async (
   input: CreateIssueCategoryProps,
 ) => {
   const _organizationId = normalizeObjectId(input.organizationId);
@@ -170,7 +155,7 @@ export const createIssueCategoryForOrganization = async (
     : category;
 };
 
-export const getIssueCategoriesForOrganization = async ({
+export const getIssueCategoriesForOrg = async ({
   organizationId,
   includeInactive = true,
 }: GetIssueCategoriesInput) => {
