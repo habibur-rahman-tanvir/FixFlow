@@ -2,6 +2,8 @@ import mongoose, { Schema } from "mongoose";
 import {
   ISSUE_PRIORITY,
   ISSUE_PRIORITY_DEFAULT,
+  ISSUE_STATUS,
+  ISSUE_STATUS_DEFAULT,
 } from "../dto/issue/issue.dto.js";
 
 const issueSchema = new Schema(
@@ -22,20 +24,10 @@ const issueSchema = new Schema(
       type: String,
     },
 
-    status: {
+    issueStatus: {
       type: String,
-      enum: [
-        "OPEN",
-        "TRIAGED",
-        "ASSIGNED",
-        "IN_PROGRESS",
-        "BLOCKED",
-        "RESOLVED",
-        "CLOSED",
-        "REOPENED",
-        "CANCELLED",
-      ],
-      default: "OPEN",
+      enum: ISSUE_STATUS,
+      default: ISSUE_STATUS_DEFAULT,
       required: true,
     },
 
@@ -45,9 +37,7 @@ const issueSchema = new Schema(
     },
 
     priority: {
-      // enum: ["LOW", "MEDIUM", "HIGH", "URGENT"],
       enum: ISSUE_PRIORITY,
-      // default: "MEDIUM",
       default: ISSUE_PRIORITY_DEFAULT,
       required: true,
     },

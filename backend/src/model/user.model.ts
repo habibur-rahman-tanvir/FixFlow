@@ -1,6 +1,13 @@
 import mongoose, { Model, Schema, type HydratedDocument } from "mongoose";
 import bcrypt from "bcrypt";
-import type { User } from "../dto/user/user.dto.js";
+import {
+  ROLE,
+  ROLE_DEFAULT,
+  USER_STATUS,
+  USER_STATUS_DEFAULT,
+  VERIFIED_BY,
+  type User,
+} from "../dto/user/user.dto.js";
 
 interface UserMethods {
   verifyPassword(password: string): Promise<boolean>;
@@ -23,7 +30,7 @@ const userSchema = new Schema<User>(
 
     verifiedBy: {
       type: String,
-      enum: ["email", "google"],
+      enum: VERIFIED_BY,
       required: [true, "Verifying is required"],
     },
 
@@ -38,14 +45,14 @@ const userSchema = new Schema<User>(
 
     userStatus: {
       type: String,
-      enum: ["active", "suspended", "deleted"],
-      default: "active",
+      enum: USER_STATUS,
+      default: USER_STATUS_DEFAULT,
     },
 
     role: {
       type: String,
-      enum: ["visitor", "member", "admin", "manager", "technician"],
-      default: "visitor",
+      enum: ROLE,
+      default: ROLE_DEFAULT,
     },
 
     managerOf: [
