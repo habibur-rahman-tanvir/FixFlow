@@ -2,12 +2,17 @@ import mongoose from "mongoose";
 import { AppError } from "../error/App.error.js";
 import { IssueCategoryModel } from "../model/issueCategory.model.js";
 import { OrganizationModel } from "../model/organization.model.js";
-import { normalizeObjectId, normalizeText, slugify } from "../utils/util.js";
+import { normalizeObjectId, normalizeText } from "../utils/util.js";
 import type { Role } from "../dto/user/user.dto.js";
 import {
   ISSUE_CATEGORY_PRIORITY,
+  ISSUE_CATEGORY_PRIORITY_DEFAULT,
   type IssueCategoryPriority,
 } from "../dto/issue/issueCategory.dto.js";
+import {
+  createSlugForIssueCategory,
+  ensureOrgManagerAccess,
+} from "./aggrement.service.js";
 
 export type CreateIssueCategoryProps = {
   organizationId: string | mongoose.Types.ObjectId;
@@ -20,94 +25,16 @@ export type CreateIssueCategoryProps = {
   isActive?: boolean;
 };
 
-export type GetIssueCategoriesInput = {
+export type GetIssueCategoriesProps = {
   organizationId: string | mongoose.Types.ObjectId;
   includeInactive?: boolean;
 };
 
-const normalizePriority = (
-  priority?: IssueCategoryPriority | string,
-): IssueCategoryPriority => {
-  const normalizedPriority = normalizeText(priority);
-
-  if (!normalizedPriority) {
-    return "MEDIUM";
-  }
-
-  const upperPriority = normalizedPriority.toUpperCase();
-
-  if (
-    ISSUE_CATEGORY_PRIORITY.includes(upperPriority as IssueCategoryPriority)
-  ) {
-    return upperPriority as IssueCategoryPriority;
-  }
-
-  throw new AppError(
-    `Invalid priority. Allowed values: ${ISSUE_CATEGORY_PRIORITY.join(", ")}`,
-    400,
-  );
-};
-
-const createUniqueSlug = async (
-  organizationId: mongoose.Types.ObjectId,
-  name: string,
-) => {
-  const baseSlug = slugify(name);
-
-  if (!baseSlug) {
-    throw new AppError(
-      "Issue category name is required and must contain valid characters",
-      400,
-    );
-  }
-
-  let slug = baseSlug;
-  let counter = 1;
-
-  while (
-    await IssueCategoryModel.exists({ organization: organizationId, slug })
-  ) {
-    slug = `${baseSlug}-${counter}`;
-    counter += 1;
-  }
-
-  return slug;
-};
-
-export const ensureOrganizationManagerAccess = async ({
-  organizationId,
-  userId,
-}: {
-  organizationId: string | mongoose.Types.ObjectId;
-  userId: string | mongoose.Types.ObjectId;
-}) => {
-  const _organizationId = normalizeObjectId(organizationId);
-  const _userId = normalizeObjectId(userId);
-
-  if (!_organizationId) {
-    throw new AppError("Organization id is required", 400);
-  }
-
-  if (!_userId) {
-    throw new AppError("Authentication required", 401);
-  }
-
-  const [organization] = await Promise.all([
-    OrganizationModel.findOne({ _id: _organizationId, manager: userId }).lean(),
-  ]);
-
-  if (!organization) {
-    throw new AppError("Organization not found", 404);
-  }
-
-  return organization;
-};
-
 export const createIssueCategoryForOrg = async (
-  input: CreateIssueCategoryProps,
+  props: CreateIssueCategoryProps,
 ) => {
-  const _organizationId = normalizeObjectId(input.organizationId);
-  const _createdBy = normalizeObjectId(input.createdBy);
+  const _organizationId = normalizeObjectId(props.organizationId);
+  const _createdBy = normalizeObjectId(props.createdBy);
 
   if (!_organizationId) {
     throw new AppError("Organization id is required", 400);
@@ -117,17 +44,23 @@ export const createIssueCategoryForOrg = async (
     throw new AppError("Authentication required", 401);
   }
 
-  if (input.role !== "admin") {
-    await ensureOrganizationManagerAccess({
-      organizationId: _organizationId,
+  if (props.role !== "admin") {
+    await ensureOrgManagerAccess({
+      orgId: _organizationId,
       userId: _createdBy,
     });
   }
 
-  const name = normalizeText(input.name);
-  const description = normalizeText(input.description);
-  const isActive = typeof input.isActive === "boolean" ? input.isActive : true;
-  const priority = normalizePriority(input.priority);
+  const name = normalizeText(props.name);
+  const description = normalizeText(props.description);
+  const isActive = typeof props.isActive === "boolean" ? props.isActive : true;
+  let priority = normalizeText(
+    props.priority,
+  )?.toUpperCase() as IssueCategoryPriority;
+
+  priority = ISSUE_CATEGORY_PRIORITY.includes(priority)
+    ? priority
+    : ISSUE_CATEGORY_PRIORITY_DEFAULT;
 
   if (!name || name.length < 2) {
     throw new AppError(
@@ -136,7 +69,7 @@ export const createIssueCategoryForOrg = async (
     );
   }
 
-  const slug = await createUniqueSlug(_organizationId, name);
+  const slug = await createSlugForIssueCategory(_organizationId, name);
 
   const categoryPayload = {
     organization: _organizationId,
@@ -150,15 +83,15 @@ export const createIssueCategoryForOrg = async (
 
   const category = await IssueCategoryModel.create(categoryPayload);
 
-  return category && typeof (category as any).toObject === "function"
-    ? (category as any).toObject()
+  return category && typeof category.toObject === "function"
+    ? category.toObject()
     : category;
 };
 
-export const getIssueCategoriesForOrg = async ({
+export const getIssueCategoriesFromOrg = async ({
   organizationId,
   includeInactive = true,
-}: GetIssueCategoriesInput) => {
+}: GetIssueCategoriesProps) => {
   const _organizationId = normalizeObjectId(organizationId);
 
   if (!_organizationId) {

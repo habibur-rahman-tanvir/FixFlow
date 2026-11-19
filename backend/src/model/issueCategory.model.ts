@@ -1,5 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { ISSUE_CATEGORY_PRIORITY } from "../dto/issue/issueCategory.dto.js";
+import {
+  ISSUE_CATEGORY_PRIORITY,
+  ISSUE_CATEGORY_PRIORITY_DEFAULT,
+} from "../dto/issue/issueCategory.dto.js";
 
 const issueCategorySchema = new Schema(
   {
@@ -46,7 +49,8 @@ const issueCategorySchema = new Schema(
       type: String,
       // enum: ["LOW", "MEDIUM", "HIGH", "URGENT"],
       enum: ISSUE_CATEGORY_PRIORITY,
-      default: "MEDIUM",
+      // default: "MEDIUM",
+      default: ISSUE_CATEGORY_PRIORITY_DEFAULT,
     },
   },
   {

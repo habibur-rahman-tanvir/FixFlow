@@ -1,6 +1,7 @@
 import type mongoose from "mongoose";
 
 export const ISSUE_PRIORITY = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
+export const ISSUE_PRIORITY_DEFAULT = ISSUE_PRIORITY[1];
 
 export type IssuePriority = (typeof ISSUE_PRIORITY)[number];
 

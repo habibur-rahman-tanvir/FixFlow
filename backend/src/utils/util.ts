@@ -16,7 +16,7 @@ export const createOPT = (
   return result;
 };
 
-export const normalizeText = (value: string | null | undefined) => {
+export const normalizeText = (value: string | undefined) => {
   const normalized = value?.trim();
   if (normalized === undefined || normalized === null || normalized === "") {
     return undefined;

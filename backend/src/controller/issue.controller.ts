@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import {
   createIssueCategoryForOrg,
-  getIssueCategoriesForOrg,
+  getIssueCategoriesFromOrg,
 } from "../services/issueCategory.service.js";
 
 export const createIssueCategory: RequestHandler = async (req, res, next) => {
@@ -43,7 +43,7 @@ export const getIssueCategories: RequestHandler = async (req, res, next) => {
       ? (rawOrgId[0] ?? "")
       : (rawOrgId ?? "");
 
-    const categories = await getIssueCategoriesForOrg({
+    const categories = await getIssueCategoriesFromOrg({
       organizationId,
       includeInactive: true,
     });
