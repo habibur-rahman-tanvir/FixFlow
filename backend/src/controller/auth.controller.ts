@@ -1,4 +1,4 @@
-import { response, type RequestHandler } from "express";
+import { type RequestHandler } from "express";
 import { z } from "zod";
 import { AppError } from "../error/App.error.js";
 import { createUser } from "../services/user.service.js";
@@ -38,6 +38,7 @@ export const signupController: RequestHandler = async (req, res, next) => {
     const { name, email, password } = signupSchema.parse(req.body);
     const otp = createOPT();
 
+    // TODO: Remove later
     console.log("OTP: ", otp);
 
     const expiresAt = Date.now() + 1000 * 60 * OTP_EXPIRE_TIME_MINUTE;
@@ -59,6 +60,7 @@ export const signupController: RequestHandler = async (req, res, next) => {
     });
 
     await emailQueue.add("otpQueue", { name, email, otp });
+
     res.json({
       status: "success",
       message: "We sent an verification otp in your email.",
@@ -72,12 +74,14 @@ export const signupController: RequestHandler = async (req, res, next) => {
         },
         {} as Record<string, string>,
       );
+
       return res.status(422).json({
         status: "fail",
         message: "Validation failed",
         errors: flattenError,
       });
     }
+
     return next(error);
   }
 };
@@ -160,15 +164,12 @@ export const verifyOtpController: RequestHandler = async (req, res, next) => {
 export const loginController: RequestHandler = async (req, res) => {
   const { email, password } = req.body || {};
   // TODO: validate email and password
-  console.log(`Email: ${email}, Pass: ${password}`);
-
   const user = await UserModel.findOne({ email });
-
-  console.log(user);
 
   if (!user || !(await user.verifyPassword(password))) {
     throw new AppError("Inavlid email or password_[bug]", 401);
   }
+
   req.session.user = {
     _id: user._id,
     name: user.name,
@@ -176,6 +177,7 @@ export const loginController: RequestHandler = async (req, res) => {
     role: user.role,
     userStatus: user.userStatus,
   };
+
   res.json({
     status: "success",
     message: "Login successful",
@@ -192,8 +194,10 @@ export const loginController: RequestHandler = async (req, res) => {
 export const logoutController: RequestHandler = async (req, res) => {
   req.session.destroy((err) => {
     if (err) throw new AppError("Something went wrong");
+
     res.clearCookie("connect.sid");
-    res.clearCookie("otp");
+    // res.clearCookie("otp");
+
     return res.json({
       status: "success",
       message: "Logout successfull",
@@ -204,6 +208,7 @@ export const logoutController: RequestHandler = async (req, res) => {
 export const googleAuthController: RequestHandler = async (req, res) => {
   const { code } = req.query;
   if (!code) throw new AppError("Google auth code not found", 400);
+
   try {
     const googleRes = await oauth2client.getToken(code as string);
     oauth2client.setCredentials(googleRes.tokens);
@@ -215,6 +220,7 @@ export const googleAuthController: RequestHandler = async (req, res) => {
         },
       },
     );
+
     const { name, email } = userRes.data;
     // TODO: validate
     const user = await createUser({ name, email, verifiedBy: "google" });
@@ -225,6 +231,7 @@ export const googleAuthController: RequestHandler = async (req, res) => {
       role: user.role,
       userStatus: user.userStatus,
     };
+
     return res.status(201).json({
       status: "success",
       message: "Google login successful",
@@ -257,7 +264,9 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
     noTimestamp: true,
     expiresIn: 60 * JWT_EXPIRE_TIME_MINUTES,
   });
+
   res.setHeader("X-Access-Token", token);
+
   res.status(200).json({
     status: "success",
     accessToken: token,
