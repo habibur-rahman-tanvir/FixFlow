@@ -40,10 +40,13 @@ export default function VerifyPage() {
     const otp = getCookie("otp");
 
     console.log("OTP Cookie:", otp);
+    console.log("Cookies:", document.cookie);
+
+    console.log("Current URL:", window.location.origin);
+    console.log("Current Host:", window.location.host);
 
     if (!otp || otp.expireAt < Date.now()) {
       console.log("Redirecting to signup");
-
       router.replace("/signup");
     }
   }, [router]);
