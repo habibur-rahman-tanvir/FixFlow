@@ -37,6 +37,9 @@ export const signupController: RequestHandler = async (req, res, next) => {
   try {
     const { name, email, password } = signupSchema.parse(req.body);
     const otp = createOPT();
+
+    console.log("OTP: ", otp);
+
     const expiresAt = Date.now() + 1000 * 60 * OTP_EXPIRE_TIME_MINUTE;
 
     req.session.otp = {
@@ -157,9 +160,14 @@ export const verifyOtpController: RequestHandler = async (req, res, next) => {
 export const loginController: RequestHandler = async (req, res) => {
   const { email, password } = req.body || {};
   // TODO: validate email and password
+  console.log(`Email: ${email}, Pass: ${password}`);
+
   const user = await UserModel.findOne({ email });
+
+  console.log(user);
+
   if (!user || !(await user.verifyPassword(password))) {
-    throw new AppError("Inavlid email or password", 401);
+    throw new AppError("Inavlid email or password_[bug]", 401);
   }
   req.session.user = {
     _id: user._id,
