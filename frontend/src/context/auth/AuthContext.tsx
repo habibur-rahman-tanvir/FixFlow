@@ -113,6 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.success(res.data.message);
         router.replace("/profile");
       } else {
+        toast.success(res.data.message);
+        console.log("Redirected to /verify");
         router.push("/verify");
       }
       // }
