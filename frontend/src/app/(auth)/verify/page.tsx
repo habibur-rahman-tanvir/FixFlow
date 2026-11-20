@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
+import { KEYS } from "@/constants/keys.constant";
 
 export default function VerifyPage() {
   const [otp, setOtp] = useState("");
@@ -29,11 +30,11 @@ export default function VerifyPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const expireAtStr = sessionStorage.getItem("otpExpireAt");
+    const expireAtStr = sessionStorage.getItem(KEYS.OTP_EXPIRE_AT);
     const expireAt = Number(expireAtStr);
 
     if (!expireAt || expireAt < Date.now()) {
-      sessionStorage.removeItem("otpExpireAt");
+      sessionStorage.removeItem(KEYS.OTP_EXPIRE_AT);
       router.replace("/signup");
     }
   }, [router]);

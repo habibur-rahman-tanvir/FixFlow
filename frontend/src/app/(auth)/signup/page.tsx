@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { ProtectedRoute } from "@/app/(guards)/protected-route";
+import { KEYS } from "@/constants/keys.constant";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -35,10 +36,17 @@ export default function SignupPage() {
   } = useAuth();
 
   useEffect(() => {
-    const expireAtStr = sessionStorage.getItem("otpExpireAt");
+    const expireAtStr = sessionStorage.getItem(KEYS.OTP_EXPIRE_AT);
     const expireAt = Number(expireAtStr);
 
-    if (expireAt && expireAt > Date.now()) {
+    if (!expireAt) return;
+
+    if (expireAt <= Date.now()) {
+      sessionStorage.removeItem(KEYS.OTP_EXPIRE_AT);
+      return;
+    }
+
+    if (expireAt > Date.now()) {
       router.replace("/verify");
     }
   }, [router]);
