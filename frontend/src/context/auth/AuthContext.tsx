@@ -19,6 +19,7 @@ import {
 } from "react";
 import toast from "react-hot-toast";
 import { initialUserState, userReducer } from "./userReducer";
+import { KEYS } from "@/constants/keys.constant";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 let hasInitializedAuth = false;
@@ -113,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.replace("/profile");
       } else {
         toast.success(res.data.message);
-        sessionStorage.setItem("otpExpireAt", String(res.data.data.expireAt));
+        sessionStorage.setItem(
+          KEYS.OTP_EXPIRE_AT,
+          String(res.data.data.expireAt),
+        );
         router.push("/verify");
       }
     } catch (error) {
@@ -182,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const user = res.data?.data;
         if (user) setUserData(user);
         toast.success(res.data.message);
-        sessionStorage.removeItem("otpExpireAt");
+        sessionStorage.removeItem(KEYS.OTP_EXPIRE_AT);
         router.replace("/profile");
       }
     } catch (err) {
@@ -202,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.status === 200) {
         toast.success(res.data.message);
         clearUserData();
-        localStorage.removeItem("accessToken");
+        localStorage.removeItem(KEYS.ACCESS_TOKEN);
       }
     } catch (err) {
       console.log(err);
@@ -226,7 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
           const data = await res.json();
           if (data.accessToken) {
-            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem(KEYS.ACCESS_TOKEN, data.accessToken);
             const res2 = await fetch(`${API_URL}/api/profile/basic`, {
               method: "GET",
               headers: {
@@ -237,7 +241,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data2 = await res2.json();
             setUserData(data2);
           } else {
-            localStorage.removeItem("accessToken");
+            localStorage.removeItem(KEYS.ACCESS_TOKEN);
             setUserData(null);
           }
         } catch {
