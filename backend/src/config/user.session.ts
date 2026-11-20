@@ -3,16 +3,18 @@ import session from "express-session";
 import { SESSION_EXPIRE_TIME_DAY } from "./config.js";
 import type e from "express";
 import { envERROR } from "../utils/checkENV.js";
+import { KEYS } from "../constant/keys.constant.js";
 
 const { MONGODB_URI, USER_SESSION_SECRET } = envERROR({
   MONGODB_URI: process.env.MONGODB_URI,
   USER_SESSION_SECRET: process.env.USER_SESSION_SECRET,
 });
 
-const mongoStore = MongoStore.create({
+export const mongoStore = MongoStore.create({
   mongoUrl: MONGODB_URI,
   autoRemove: "native",
-  collectionName: "user-session-data",
+  collectionName: KEYS.USER_SESSION_DATA,
+  stringify: false,
 });
 
 const userSession: e.RequestHandler = session({
