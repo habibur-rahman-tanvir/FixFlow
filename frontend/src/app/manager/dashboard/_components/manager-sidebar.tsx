@@ -36,6 +36,11 @@ const managerSidebarItems: ManagerSidebarItem[] = [
     icon: LayoutDashboard,
   },
   {
+    title: "Issues",
+    url: "/manager/dashboard/issues",
+    icon: Ticket,
+  },
+  {
     title: "Service Requests",
     url: "/manager/dashboard/service-requests",
     icon: Ticket,
