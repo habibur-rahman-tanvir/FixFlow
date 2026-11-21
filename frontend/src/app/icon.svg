@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fixflow-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="0.55" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="fixflow-accent" x1="18" y1="16" x2="46" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0F2FE"/>
+      <stop offset="1" stop-color="#BAE6FD"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="16" fill="url(#fixflow-gradient)"/>
+  <path d="M22 19.5C22 18.67 22.67 18 23.5 18H38.5C42.09 18 44.9999 20.91 44.9999 24.5C44.9999 28.09 42.09 31 38.5 31H29V44.5C29 45.33 28.33 46 27.5 46H22V19.5Z" fill="url(#fixflow-accent)"/>
+  <path d="M29 26H37.5C39.43 26 41 27.57 41 29.5C41 31.43 39.43 33 37.5 33H29V26Z" fill="#EFF6FF"/>
+  <path d="M24 19.5C24 18.67 24.67 18 25.5 18H31V46H25.5C24.67 46 24 45.33 24 44.5V19.5Z" fill="#F8FAFC" fill-opacity="0.92"/>
+</svg>
