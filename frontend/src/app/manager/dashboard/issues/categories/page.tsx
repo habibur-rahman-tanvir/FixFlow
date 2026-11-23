@@ -1,3 +1,9 @@
+export const instant = false;
+
 export default function IssueCategoriesPage() {
-  return <div>IssueCategoriesPage</div>;
+  return (
+    <div>
+      <h1>Issue Categories</h1>
+    </div>
+  );
 }
