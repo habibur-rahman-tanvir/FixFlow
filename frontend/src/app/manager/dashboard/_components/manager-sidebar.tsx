@@ -19,6 +19,7 @@ import {
   Users,
   History,
   Wrench,
+  SquareExclamationPoint,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,7 +39,7 @@ const managerSidebarItems: ManagerSidebarItem[] = [
   {
     title: "Issues",
     url: "/manager/dashboard/issues",
-    icon: Ticket,
+    icon: SquareExclamationPoint,
   },
   {
     title: "Service Requests",
